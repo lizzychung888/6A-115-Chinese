@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國小六年級國語 1-6 課短語練習特訓樂園</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background: linear-gradient(135deg, #fdf4ff 0%, #e0f2fe 50%, #f0fdf4 100%);
+            min-height: 100vh;
+            color: #334155;
+            user-select: none;
+        }
+
+        .drop-zone {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: 85px;
+        }
+
+        .drop-zone.drag-over {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            transform: scale(1.03);
+            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.25);
+        }
+
+        .draggable-card {
+            cursor: grab;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: none;
+        }
+
+        .draggable-card:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        .draggable-card:active {
+            cursor: grabbing;
+            transform: scale(1.06);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .draggable-card.dragging {
+            opacity: 0.35;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        @keyframes bounce-pop {
+            0% { transform: scale(0.85); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .shake-animation {
+            animation: shake 0.45s ease-in-out;
+        }
+
+        .pop-animation {
+            animation: bounce-pop 0.4s ease-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 md:p-8">
+
+    <!-- 頂部頁首與關卡選單 -->
+    <header class="w-full max-w-6xl text-center mb-4">
+        <div class="inline-flex items-center gap-2 bg-pink-100/90 text-pink-700 border border-pink-200 px-5 py-1.5 rounded-full font-bold text-base mb-2 shadow-sm">
+            <i class="fa-solid fa-graduation-cap text-pink-500"></i> 國小六年級 國語 1-6 課短語結構大解密
+        </div>
+        <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight mb-2">
+            課本標準短語拼圖特訓網
+        </h1>
+        <p class="text-slate-600 text-base md:text-lg font-bold mb-4">
+            觀察結構剖析，將正確詞性的馬卡龍卡片拖入格子中！
+        </p>
+
+        <!-- 8大關卡快速切換按鈕區 -->
+        <div class="flex flex-wrap justify-center gap-2 max-w-5xl mx-auto" id="levelNavBtns">
+            <!-- 關卡按鈕由 JS 動態生成 -->
+        </div>
+    </header>
+
+    <!-- 主遊戲區 -->
+    <main class="w-full max-w-5xl flex flex-col gap-5">
+
+        <!-- 關卡標題與結構剖析 Banner -->
+        <div class="bg-white/90 backdrop-blur border-3 border-purple-200 p-5 rounded-3xl shadow-md">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-3">
+                <div class="flex items-center gap-3">
+                    <span id="levelBadge" class="bg-purple-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                        關卡 1
+                    </span>
+                    <h2 id="levelTitle" class="text-xl font-black text-slate-800">
+                        【短語類型】
+                    </h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- 每關 3 題進度指示 -->
+                    <div class="flex items-center gap-2 bg-purple-50 px-3.5 py-1.5 rounded-2xl border border-purple-200">
+                        <span class="text-xs font-black text-purple-700">關卡進度</span>
+                        <div id="subQuestionStars" class="flex gap-1.5">
+                            <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                            <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                            <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                        </div>
+                        <span id="subQuestionText" class="text-xs font-black text-purple-900 ml-1">第 1/3 題</span>
+                    </div>
+
+                    <span class="text-slate-500 font-bold text-sm">得分：<strong id="scoreText" class="text-2xl text-amber-500 font-black">0</strong></span>
+                    <button id="resetBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-3.5 py-1.5 rounded-xl transition border border-slate-200 text-sm shadow-sm">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> 重練本題
+                    </button>
+                </div>
+            </div>
+
+            <!-- 結構公式剖析與例句展示 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl">
+                    <span class="text-xs font-black text-purple-600 block mb-1">📐 結構剖析：</span>
+                    <p id="structureFormula" class="text-base font-black text-purple-950">
+                        動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)
+                    </p>
+                </div>
+                <div class="bg-pink-50 border border-pink-100 p-3.5 rounded-2xl">
+                    <span class="text-xs font-black text-pink-600 block mb-1">💡 課本示範例句：</span>
+                    <p id="exampleSentence" class="text-base font-black text-pink-950">
+                        摘 一片 雪白 的 雲
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 放置區 (Drop Zones) -->
+        <div class="bg-white/95 border-4 border-pink-100 p-6 rounded-3xl shadow-xl backdrop-blur">
+            <h3 class="text-slate-700 font-black text-base mb-4 text-center">
+                👇 請依據結構剖析，將卡片填入正確位置：
+            </h3>
+
+            <div id="dropZoneContainer" class="flex flex-wrap md:flex-nowrap justify-center items-center gap-2">
+                <!-- Drop zones dynamic DOM -->
+            </div>
+
+            <!-- 錯誤提示與智慧指導欄 -->
+            <div id="messageBanner" class="mt-5 hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
+                <span id="messageText"></span>
+            </div>
+        </div>
+
+        <!-- 卡片池 (Card Pool) -->
+        <div class="bg-white/80 border-2 border-slate-200 p-5 rounded-3xl shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-slate-700 font-black text-base flex items-center gap-2">
+                    <i class="fa-solid fa-shapes text-pink-400"></i> 馬卡龍卡片池（請點擊或拖拽至目標區）：
+                </h3>
+                <span class="text-xs font-bold text-slate-400">包含誘答與陷阱卡喔！</span>
+            </div>
+
+            <div id="cardPool" class="flex flex-wrap justify-center gap-3 min-h-[90px] p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
+                <!-- Cards rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- 驗證按鈕 -->
+        <div class="flex justify-center gap-4">
+            <button id="checkBtn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check"></i> 驗證組合
+            </button>
+            <button id="nextBtn" class="hidden bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                進入下一題 <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- 關卡通關彈窗 -->
+    <div id="clearModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full border-4 border-purple-200 shadow-2xl text-center flex flex-col items-center pop-animation">
+            <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-4xl mb-4 shadow-inner">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 mb-2">🎉 恭喜完成本關 3 道題目！</h3>
+            <p id="modalMsg" class="text-slate-600 font-bold mb-6">
+                太厲害了！你已經完全掌握此結構的詞性搭配！
+            </p>
+            <button id="modalNextLevelBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-black text-lg py-3.5 rounded-2xl shadow-lg transition active:scale-95">
+                解鎖並進入下一關 🚀
+            </button>
+        </div>
+    </div>
+
+    <footer class="mt-6 text-center text-slate-400 text-xs font-bold">
+        國小六年級 國語短語結構專題特訓 ｜ 馬卡龍色系教學互動 App
+    </footer>
+
+    <script>
+        // 9 大關卡資料庫：每關固定包含 3 道實戰題
+        const gameLevels = [
+            {
+                id: "核心",
+                title: "【核心精選】在……找到……的……",
+                formula: "在 ＋ 名詞(地點/時間＋方位) ＋ 找到 ＋ 名詞(事物/對象) ＋ 的 ＋ 形容詞(特質/特色)",
+                example: "在 樹梢 找到 風 的 淘氣",
+                structure: [
+                    { type: "static", text: "在" },
+                    { type: "slot", label: "地點/範圍", placeholder: "拖入 地點名詞" },
+                    { type: "static", text: "找到" },
+                    { type: "slot", label: "對象/事物", placeholder: "拖入 對象名詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "特質/形容詞", placeholder: "拖入 特質形容詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["樹梢上", "風", "淘氣"],
+                        cards: [
+                            { id: "c1_1", text: "樹梢上", hint: "正確！「樹梢上」是有方位介詞的空間地點。" },
+                            { id: "c1_2", text: "風", hint: "正確！「風」是事物對象名詞。" },
+                            { id: "c1_3", text: "淘氣", hint: "正確！「淘氣」是形容特質的詞。" },
+                            { id: "c1_4", text: "吹動", hint: "⚠️「吹動」是動詞，第二格需要名詞對象！" },
+                            { id: "c1_5", text: "樹梢", hint: "⚠️ 加上方位詞「上」寫成「樹梢上」，位置更清晰！" },
+                            { id: "c1_6", text: "淘氣的", hint: "⚠️ 注意右邊已經印有固定的『的』字，不要重複！" }
+                        ]
+                    },
+                    {
+                        target: ["花叢中", "春天", "可愛"],
+                        cards: [
+                            { id: "c2_1", text: "花叢中", hint: "正確！「花叢中」是有方位介詞的範圍名詞。" },
+                            { id: "c2_2", text: "春天", hint: "正確！「春天」是季節景物名詞。" },
+                            { id: "c2_3", text: "可愛", hint: "正確！「可愛」是描繪特質的形容詞。" },
+                            { id: "c2_4", text: "飛舞", hint: "⚠️「飛舞」是動詞，第二格需要名詞！" },
+                            { id: "c2_5", text: "可愛的", hint: "⚠️ 右邊已經印有『的』字囉，請選『可愛』！" },
+                            { id: "c2_6", text: "花叢", hint: "⚠️ 請選帶有方位介詞的「花叢中」！" }
+                        ]
+                    },
+                    {
+                        target: ["書本裡", "自己", "影子"],
+                        cards: [
+                            { id: "c3_1", text: "書本裡", hint: "正確！「書本裡」是有方位介詞的處所名詞。" },
+                            { id: "c3_2", text: "自己", hint: "正確！「自己」是代表個人的代名詞。" },
+                            { id: "c3_3", text: "影子", hint: "正確！「影子」在此作為抽象特質/意象。" },
+                            { id: "c3_4", text: "閱讀", hint: "⚠️「閱讀」是動詞，第一格需要地點範圍喔！" },
+                            { id: "c3_5", text: "寫照", hint: "⚠️ 如果填「寫照」，接上印好的「的」會變成「寫照的……」句子中斷！" },
+                            { id: "c3_6", text: "自己的", hint: "⚠️ 卡片不要重複包含『的』字！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 1,
+                title: "【結構一】量詞修飾句",
+                formula: "動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)",
+                example: "摘 一片 雪白 的 雲",
+                structure: [
+                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
+                    { type: "slot", label: "量詞", placeholder: "拖入 量詞" },
+                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "名詞(事物)", placeholder: "拖入 名詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["摘", "一片", "雪白", "雲"],
+                        cards: [
+                            { id: "s1_1", text: "摘", hint: "正確！「摘」是動作動詞。" },
+                            { id: "s1_2", text: "一片", hint: "正確！「一片」是數量詞。" },
+                            { id: "s1_3", text: "雪白", hint: "正確！「雪白」是形容顏色的形容詞。" },
+                            { id: "s1_4", text: "雲", hint: "正確！「雲」是事物名詞。" },
+                            { id: "s1_5", text: "藍天", hint: "⚠️「藍天」不能用「摘一片」來修飾喔！" },
+                            { id: "s1_6", text: "雪白的", hint: "⚠️ 外面已經印有『的』字了！" }
+                        ]
+                    },
+                    {
+                        target: ["寫", "一頁", "工整", "硬筆字"],
+                        cards: [
+                            { id: "s1_7", text: "寫", hint: "正確！「寫」是動作動詞。" },
+                            { id: "s1_8", text: "一頁", hint: "正確！「一頁」是量詞。" },
+                            { id: "s1_9", text: "工整", hint: "正確！「工整」是形容字跡的形容詞。" },
+                            { id: "s1_10", text: "硬筆字", hint: "正確！「硬筆字」是事物名詞。" },
+                            { id: "s1_11", text: "一顆", hint: "⚠️ 硬筆字是用「一頁」或「一個」喔！" },
+                            { id: "s1_12", text: "苦澀", hint: "「苦澀」是用來形容藥丸或心情，不是形容硬筆字！" }
+                        ]
+                    },
+                    {
+                        target: ["吃", "一顆", "苦澀", "藥丸"],
+                        cards: [
+                            { id: "s1_13", text: "吃", hint: "正確！「吃」是動作動詞。" },
+                            { id: "s1_14", text: "一顆", hint: "正確！「一顆」是圓形物品的量詞。" },
+                            { id: "s1_15", text: "苦澀", hint: "正確！「苦澀」是描摹味道的形容詞。" },
+                            { id: "s1_16", text: "藥丸", hint: "正確！「藥丸」是事物名詞。" },
+                            { id: "s1_17", text: "看", hint: "藥丸是拿來「吃」的！" },
+                            { id: "s1_18", text: "一片", hint: "藥丸一般用「一顆」，不用「一片」！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "【結構二】把字轉換句",
+                formula: "把 ＋ 名詞(負面) ＋ 動詞(動作) ＋ 成 ＋ 名詞(正面)",
+                example: "把 幽暗 抹 成 光明",
+                structure: [
+                    { type: "static", text: "把" },
+                    { type: "slot", label: "名詞(負面)", placeholder: "拖入 負面名詞" },
+                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
+                    { type: "static", text: "成" },
+                    { type: "slot", label: "名詞(正面)", placeholder: "拖入 正面名詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["幽暗", "抹", "光明"],
+                        cards: [
+                            { id: "s2_1", text: "幽暗", hint: "正確！「幽暗」是負面名詞。" },
+                            { id: "s2_2", text: "抹", hint: "正確！「抹」是動作動詞。" },
+                            { id: "s2_3", text: "光明", hint: "正確！「光明」是正面名詞。" },
+                            { id: "s2_4", text: "抹成", hint: "⚠️ 框外已經有『成』字了，請不要重複！" },
+                            { id: "s2_5", text: "黑暗", hint: "題目例句標準詞是「幽暗」喔！" }
+                        ]
+                    },
+                    {
+                        target: ["缺點", "改", "優點"],
+                        cards: [
+                            { id: "s2_6", text: "缺點", hint: "正確！「缺點」是待修正的負面事物名詞。" },
+                            { id: "s2_7", text: "改", hint: "正確！「改」是改變動作動詞。" },
+                            { id: "s2_8", text: "優點", hint: "正確！「優點」是正面名詞。" },
+                            { id: "s2_9", text: "改成", hint: "⚠️ 注意外面已經印有『成』字了！" },
+                            { id: "s2_10", text: "美好", hint: "最後一格需要名詞「優點」！" }
+                        ]
+                    },
+                    {
+                        target: ["挫折", "當", "養分"],
+                        cards: [
+                            { id: "s2_11", text: "挫折", hint: "正確！「挫折」是負面困境名詞。" },
+                            { id: "s2_12", text: "當", hint: "正確！「當」是視為的動詞。" },
+                            { id: "s2_13", text: "養分", hint: "正確！「養分」是轉化後的正面收穫名詞。" },
+                            { id: "s2_14", text: "當成", hint: "⚠️ 外面已經有『成』字了！" },
+                            { id: "s2_15", text: "失敗", hint: "搭配「養分」，課本標準答案是「把挫折當成養分」！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "【結構三】生理/心理感受句",
+                formula: "名詞(事物/部位) ＋ 一 ＋ 形容詞(感受)",
+                example: "心裡 一 涼",
+                structure: [
+                    { type: "slot", label: "名詞(部位/事物)", placeholder: "拖入 名詞" },
+                    { type: "static", text: "一" },
+                    { type: "slot", label: "形容詞(感受)", placeholder: "拖入 感受形容詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["心裡", "涼"],
+                        cards: [
+                            { id: "s3_1", text: "心裡", hint: "正確！「心裡」是心理狀態名詞。" },
+                            { id: "s3_2", text: "涼", hint: "正確！「涼」是形容心頭一沉的感受形容詞。" },
+                            { id: "s3_3", text: "冰涼", hint: "⚠️ 這裡需要單字感受詞「涼」！" },
+                            { id: "s3_4", text: "心碎", hint: "「心碎」是動詞，不符合結構！" }
+                        ]
+                    },
+                    {
+                        target: ["鼻頭", "酸"],
+                        cards: [
+                            { id: "s3_5", text: "鼻頭", hint: "正確！「鼻頭」是身體部位名詞。" },
+                            { id: "s3_6", text: "酸", hint: "正確！「酸」是感動或想哭時的感覺形容詞。" },
+                            { id: "s3_7", text: "心頭", hint: "這題是描寫鼻子的反應，選「鼻頭」最合適！" },
+                            { id: "s3_8", text: "哭", hint: "⚠️「哭」是動詞，第二格需要形容詞「酸」！" }
+                        ]
+                    },
+                    {
+                        target: ["頭皮", "麻"],
+                        cards: [
+                            { id: "s3_9", text: "頭皮", hint: "正確！「頭皮」是身體部位名詞。" },
+                            { id: "s3_10", text: "麻", hint: "正確！「麻」是震驚或害怕時的感受形容詞。" },
+                            { id: "s3_11", text: "發麻", hint: "⚠️ 這裡需要單字形容詞「麻」！" },
+                            { id: "s3_12", text: "害怕", hint: "「害怕」是心理情緒，這裡要填生理感受！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "【結構四】感官/體驗句",
+                formula: "動詞(動作) ＋ 到 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物/感受)",
+                example: "感覺 到 真正 的 孤獨",
+                structure: [
+                    { type: "slot", label: "動詞", placeholder: "拖入 動詞" },
+                    { type: "static", text: "到" },
+                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "名詞", placeholder: "拖入 名詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["感覺", "真正", "孤獨"],
+                        cards: [
+                            { id: "s4_1", text: "感覺", hint: "正確！「感覺」是感官動詞。" },
+                            { id: "s4_2", text: "真正", hint: "正確！「真正」是修飾孤獨的形容詞。" },
+                            { id: "s4_3", text: "孤獨", hint: "正確！「孤獨」是心理狀態事物名詞。" },
+                            { id: "s4_4", text: "孤獨的", hint: "⚠️ 框外已印有『的』字，不要選重複的！" },
+                            { id: "s4_5", text: "品嚐", hint: "孤獨是用「感覺到」，不是品嚐！" }
+                        ]
+                    },
+                    {
+                        target: ["品嚐", "精緻", "料理"],
+                        cards: [
+                            { id: "s4_6", text: "品嚐", hint: "正確！「品嚐」是動作動詞。" },
+                            { id: "s4_7", text: "精緻", hint: "正確！「精緻」是用來形容食物的形容詞。" },
+                            { id: "s4_8", text: "料理", hint: "正確！「料理」是事物名詞。" },
+                            { id: "s4_9", text: "品嚐到", hint: "⚠️ 框外已有『到』字了！" },
+                            { id: "s4_10", text: "美味的", hint: "⚠️ 卡片不要重複包含『的』字！" }
+                        ]
+                    },
+                    {
+                        target: ["遭遇", "空前", "災難"],
+                        cards: [
+                            { id: "s4_11", text: "遭遇", hint: "正確！「遭遇」是碰到的動詞。" },
+                            { id: "s4_12", text: "空前", hint: "正確！「空前」是形容巨大的形容詞。" },
+                            { id: "s4_13", text: "災難", hint: "正確！「災難」是事物名詞。" },
+                            { id: "s4_14", text: "碰見", hint: "面對巨大災難，課本標準用詞為「遭遇」！" },
+                            { id: "s4_15", text: "害怕", hint: "最後一格需要名詞「災難」！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "【結構五】副詞修飾動作句",
+                formula: "名詞(事物) ＋ 副詞(如何) ＋ 的 ＋ 動詞(動作) ＋ 名詞(事物)",
+                example: "春風 輕柔 的 拂過 杏樹林",
+                structure: [
+                    { type: "slot", label: "名詞(主語)", placeholder: "拖入 名詞" },
+                    { type: "slot", label: "副詞(狀態)", placeholder: "拖入 副詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
+                    { type: "slot", label: "名詞(賓語)", placeholder: "拖入 名詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["春風", "輕柔", "拂過", "杏樹林"],
+                        cards: [
+                            { id: "s5_1", text: "春風", hint: "正確！「春風」是自然景物主詞名詞。" },
+                            { id: "s5_2", text: "輕柔", hint: "正確！「輕柔」是狀態副詞。" },
+                            { id: "s5_3", text: "拂過", hint: "正確！「拂過」是微風吹動的動作動詞。" },
+                            { id: "s5_4", text: "杏樹林", hint: "正確！「杏樹林」是地點事物名詞。" },
+                            { id: "s5_5", text: "吹襲", hint: "春風是「拂過」，強風才會「吹襲」！" },
+                            { id: "s5_6", text: "輕柔的", hint: "⚠️ 外面已經有『的』字了！" }
+                        ]
+                    },
+                    {
+                        target: ["海浪", "輕輕", "拍打", "沙灘"],
+                        cards: [
+                            { id: "s5_7", text: "海浪", hint: "正確！「海浪」是自然事物名詞。" },
+                            { id: "s5_8", text: "輕輕", hint: "正確！「輕輕」是形容動作輕柔的副詞。" },
+                            { id: "s5_9", text: "拍打", hint: "正確！「拍打」是海浪動作動詞。" },
+                            { id: "s5_10", text: "沙灘", hint: "正確！「沙灘」是地點事物名詞。" },
+                            { id: "s5_11", text: "沖走", hint: "課本標準例句海浪動作是「拍打」！" },
+                            { id: "s5_12", text: "海洋", hint: "最後一格接受拍打的是「沙灘」！" }
+                        ]
+                    },
+                    {
+                        target: ["強風", "無情", "吹襲", "城鎮"],
+                        cards: [
+                            { id: "s5_13", text: "強風", hint: "正確！「強風」是氣象事物名詞。" },
+                            { id: "s5_14", text: "無情", hint: "正確！「無情」在此作為修飾吹襲的副詞。" },
+                            { id: "s5_15", text: "吹襲", hint: "正確！「吹襲」是強風侵襲的動作動詞。" },
+                            { id: "s5_16", text: "城鎮", hint: "正確！「城鎮」是地點事物名詞。" },
+                            { id: "s5_17", text: "無情的", hint: "⚠️ 外面已有『的』字，不要重複！" },
+                            { id: "s5_18", text: "拂過", hint: "強風非常猛烈，動作是「吹襲」！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 6,
+                title: "【結構六】與字介詞句",
+                formula: "與 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物) ＋ 動詞(發生什麼)",
+                example: "與 更好 的 自己 相遇",
+                structure: [
+                    { type: "static", text: "與" },
+                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "名詞", placeholder: "拖入 名詞" },
+                    { type: "slot", label: "動詞", placeholder: "拖入 動詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["更好", "自己", "相遇"],
+                        cards: [
+                            { id: "s6_1", text: "更好", hint: "正確！「更好」是修飾自己的形容詞。" },
+                            { id: "s6_2", text: "自己", hint: "正確！「自己」是代名詞。" },
+                            { id: "s6_3", text: "相遇", hint: "正確！「相遇」是動作動詞。" },
+                            { id: "s6_4", text: "美好的", hint: "⚠️ 注意外面已經印有『的』字了！" },
+                            { id: "s6_5", text: "遇見", hint: "例句標準結尾是「相遇」！" }
+                        ]
+                    },
+                    {
+                        target: ["難忘", "故人", "重逢"],
+                        cards: [
+                            { id: "s6_6", text: "難忘", hint: "正確！「難忘」是修飾故人的形容詞。" },
+                            { id: "s6_7", text: "故人", hint: "正確！「故人」是老朋友人物名詞。" },
+                            { id: "s6_8", text: "重逢", hint: "正確！「重逢」是再次相聚的動詞。" },
+                            { id: "s6_9", text: "忘記", hint: "「忘記」是動詞，第一格需要形容詞！" },
+                            { id: "s6_10", text: "相遇", hint: "針對老朋友（故人），最恰當的動詞是「重逢」！" }
+                        ]
+                    },
+                    {
+                        target: ["離奇", "事情", "交錯"],
+                        cards: [
+                            { id: "s6_11", text: "離奇", hint: "正確！「離奇」是形容怪異罕見的形容詞。" },
+                            { id: "s6_12", text: "事情", hint: "正確！「事情」是事物名詞。" },
+                            { id: "s6_13", text: "交錯", hint: "正確！「交錯」是錯綜相遇的動詞。" },
+                            { id: "s6_14", text: "故人", hint: "搭配「離奇」，對象是「事情」！" },
+                            { id: "s6_15", text: "發生", hint: "課本標準搭配動詞是「交錯」！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 7,
+                title: "【結構七】讓字致使句",
+                formula: "讓 ＋ 名詞(對象) ＋ 更 ＋ 形容詞(如何) ＋ 的 ＋ 名詞(事物)",
+                example: "讓 生活 更 美好 的 解答",
+                structure: [
+                    { type: "static", text: "讓" },
+                    { type: "slot", label: "名詞(對象)", placeholder: "拖入 對象名詞" },
+                    { type: "static", text: "更" },
+                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "名詞(結果)", placeholder: "拖入 名詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["生活", "美好", "解答"],
+                        cards: [
+                            { id: "s7_1", text: "生活", hint: "正確！「生活」是受改善的對象名詞。" },
+                            { id: "s7_2", text: "美好", hint: "正確！「美好」是形容詞。" },
+                            { id: "s7_3", text: "解答", hint: "正確！「解答」是成果名詞。" },
+                            { id: "s7_4", text: "更美好", hint: "⚠️ 外面已經有『更』字了！" },
+                            { id: "s7_5", text: "變好", hint: "「變好」是動詞，第二格需要形容詞！" }
+                        ]
+                    },
+                    {
+                        target: ["心情", "開朗", "良藥"],
+                        cards: [
+                            { id: "s7_6", text: "心情", hint: "正確！「心情」是心態對象名詞。" },
+                            { id: "s7_7", text: "開朗", hint: "正確！「開朗」是形容心境的形容詞。" },
+                            { id: "s7_8", text: "良藥", hint: "正確！「良藥」在此比喻妙方名詞。" },
+                            { id: "s7_9", text: "環境", hint: "如果第一格是心情，結尾是搭配「良藥」！" },
+                            { id: "s7_10", text: "高興", hint: "形容心境豁達，課本標準用「開朗」！" }
+                        ]
+                    },
+                    {
+                        target: ["環境", "整潔", "妙方"],
+                        cards: [
+                            { id: "s7_11", text: "環境", hint: "正確！「環境」是生活空間名詞。" },
+                            { id: "s7_12", text: "整潔", hint: "正確！「整潔」是環境狀態形容詞。" },
+                            { id: "s7_13", text: "妙方", hint: "正確！「妙方」是好辦法名詞。" },
+                            { id: "s7_14", text: "乾淨的", hint: "⚠️ 框外已印有『的』字了！" },
+                            { id: "s7_15", text: "良藥", hint: "針對環境清潔，用「妙方」比「良藥」更恰當！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 8,
+                title: "【結構八】而/為轉變句",
+                formula: "形容詞 ＋ 而 ＋ 形容詞 ＋ 的 ＋ 名詞（或：動詞 ＋ 為 ＋ 形容詞 ＋ 的 ＋ 名詞）",
+                example: "敏銳 而 有智慧 的 人 （或：轉化 為 幽默 的 談吐）",
+                structure: [
+                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
+                    { type: "static", text: "為" },
+                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
+                    { type: "static", text: "的" },
+                    { type: "slot", label: "名詞(事物)", placeholder: "拖入 名詞" }
+                ],
+                subQuestions: [
+                    {
+                        target: ["轉化", "幽默", "談吐"],
+                        cards: [
+                            { id: "s8_1", text: "轉化", hint: "正確！「轉化」是轉變動詞。" },
+                            { id: "s8_2", text: "幽默", hint: "正確！「幽默」是形容風趣的形容詞。" },
+                            { id: "s8_3", text: "談吐", hint: "正確！「談吐」是說話表現名詞。" },
+                            { id: "s8_4", text: "幽默的", hint: "⚠️ 框外已經有『的』字，不要重複！" },
+                            { id: "s8_5", text: "變成", hint: "課本標準動詞為「轉化」！" }
+                        ]
+                    },
+                    {
+                        target: ["轉變", "有趣", "人物"],
+                        cards: [
+                            { id: "s8_6", text: "轉變", hint: "正確！「轉變」是改變動詞。" },
+                            { id: "s8_7", text: "有趣", hint: "正確！「有趣」是修飾人物的形容詞。" },
+                            { id: "s8_8", text: "人物", hint: "正確！「人物」是角色名詞。" },
+                            { id: "s8_9", text: "化身", hint: "如果選人物，前面動作是「轉變」！" },
+                            { id: "s8_10", text: "開心", hint: "修飾性格特點，課本用「有趣」！" }
+                        ]
+                    },
+                    {
+                        target: ["化身", "勇敢", "士兵"],
+                        cards: [
+                            { id: "s8_11", text: "化身", hint: "正確！「化身」是轉變為某種身分的動詞。" },
+                            { id: "s8_12", text: "勇敢", hint: "正確！「勇敢」是形容氣魄的形容詞。" },
+                            { id: "s8_13", text: "士兵", hint: "正確！「士兵」是身分名詞。" },
+                            { id: "s8_14", text: "化身為", hint: "⚠️ 外面已經有『為』字了，請不要重複！" },
+                            { id: "s8_15", text: "英雄", hint: "課本這題的標準對象是「士兵」！" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let currentSubQuestionIndex = 0; // 0, 1, 2 分別代表該關卡的第 1, 2, 3 題
+        let score = 0;
+        let userSelections = [];
+
+        // DOM 元素引用
+        const levelNavBtns = document.getElementById('levelNavBtns');
+        const levelBadge = document.getElementById('levelBadge');
+        const levelTitle = document.getElementById('levelTitle');
+        const scoreText = document.getElementById('scoreText');
+        const subQuestionStars = document.getElementById('subQuestionStars');
+        const subQuestionText = document.getElementById('subQuestionText');
+        const structureFormula = document.getElementById('structureFormula');
+        const exampleSentence = document.getElementById('exampleSentence');
+        const dropZoneContainer = document.getElementById('dropZoneContainer');
+        const cardPool = document.getElementById('cardPool');
+        const messageBanner = document.getElementById('messageBanner');
+        const messageText = document.getElementById('messageText');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const clearModal = document.getElementById('clearModal');
+        const modalMsg = document.getElementById('modalMsg');
+        const modalNextLevelBtn = document.getElementById('modalNextLevelBtn');
+
+        // 初始化關卡按鈕選單
+        function initNavBtns() {
+            levelNavBtns.innerHTML = '';
+            gameLevels.forEach((lvl, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-3.5 py-1.5 rounded-xl font-black text-sm transition shadow-sm border-2 ${
+                    idx === currentLevelIndex 
+                    ? 'bg-purple-500 text-white border-purple-400 scale-105' 
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'
+                }`;
+                btn.textContent = `關卡 ${lvl.id}`;
+                btn.addEventListener('click', () => {
+                    currentSubQuestionIndex = 0;
+                    loadLevel(idx);
+                });
+                levelNavBtns.appendChild(btn);
+            });
+        }
+
+        // 更新關卡內 3 題進度星標
+        function updateProgressStars() {
+            const stars = subQuestionStars.querySelectorAll('.sub-star');
+            stars.forEach((star, idx) => {
+                if (idx < currentSubQuestionIndex) {
+                    star.className = 'sub-star text-amber-400 text-lg scale-110'; // 已過關
+                } else if (idx === currentSubQuestionIndex) {
+                    star.className = 'sub-star text-purple-400 text-lg animate-pulse'; // 當前題
+                } else {
+                    star.className = 'sub-star text-slate-300 text-lg'; // 未達
+                }
+            });
+            subQuestionText.textContent = `第 ${currentSubQuestionIndex + 1}/3 題`;
+        }
+
+        // 載入關卡與當前題目
+        function loadLevel(idx) {
+            currentLevelIndex = idx;
+            const lvl = gameLevels[currentLevelIndex];
+            const currentQuestion = lvl.subQuestions[currentSubQuestionIndex];
+
+            initNavBtns();
+            updateProgressStars();
+
+            levelBadge.textContent = `關卡 ${lvl.id} / ${gameLevels.length}`;
+            levelTitle.textContent = lvl.title;
+            structureFormula.textContent = lvl.formula;
+            exampleSentence.textContent = lvl.example;
+
+            messageBanner.classList.add('hidden');
+            checkBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+
+            const slotCount = lvl.structure.filter(item => item.type === "slot").length;
+            userSelections = new Array(slotCount).fill(null);
+
+            // 動態產生 Drop Zones
+            dropZoneContainer.innerHTML = '';
+            let slotIndexCounter = 0;
+
+            lvl.structure.forEach((item) => {
+                if (item.type === "static") {
+                    const staticEl = document.createElement('div');
+                    staticEl.className = "flex items-center justify-center font-black text-2xl text-purple-700 bg-purple-100/80 border-2 border-purple-200 px-4 py-3 rounded-2xl min-w-[55px] shadow-sm";
+                    staticEl.textContent = item.text;
+                    dropZoneContainer.appendChild(staticEl);
+                } else {
+                    const slotIndex = slotIndexCounter++;
+                    const slotWrapper = document.createElement('div');
+                    slotWrapper.className = "flex flex-col gap-1 flex-1 min-w-[130px]";
+
+                    slotWrapper.innerHTML = `
+                        <span class="text-xs font-black text-slate-500 text-center">${item.label}</span>
+                        <div id="slot_${slotIndex}" data-slot="${slotIndex}" class="drop-zone border-3 border-dashed border-purple-300 bg-purple-50/50 rounded-2xl p-2 flex items-center justify-center text-center shadow-inner">
+                            <span class="text-slate-400 font-bold text-xs pointer-events-none">${item.placeholder}</span>
+                        </div>
+                    `;
+                    dropZoneContainer.appendChild(slotWrapper);
+                }
+            });
+
+            bindDropZoneEvents();
+
+            // 洗牌卡片池（載入當題專屬卡片與誘答）
+            const shuffledCards = [...currentQuestion.cards].sort(() => Math.random() - 0.5);
+            cardPool.innerHTML = '';
+
+            const pastelColors = [
+                'bg-pink-100 border-pink-200 text-pink-900 hover:bg-pink-200',
+                'bg-sky-100 border-sky-200 text-sky-900 hover:bg-sky-200',
+                'bg-purple-100 border-purple-200 text-purple-900 hover:bg-purple-200',
+                'bg-amber-100 border-amber-200 text-amber-900 hover:bg-amber-200',
+                'bg-emerald-100 border-emerald-200 text-emerald-900 hover:bg-emerald-200'
+            ];
+
+            shuffledCards.forEach((card, cIdx) => {
+                const cardEl = document.createElement('div');
+                const colorClass = pastelColors[cIdx % pastelColors.length];
+                cardEl.className = `draggable-card ${colorClass} font-black text-lg px-4 py-2.5 rounded-2xl border-2 shadow-sm flex items-center justify-center cursor-pointer select-none`;
+                cardEl.textContent = card.text;
+                cardEl.setAttribute('draggable', 'true');
+                cardEl.dataset.id = card.id;
+
+                cardEl.addEventListener('dragstart', handleDragStart);
+                cardEl.addEventListener('dragend', handleDragEnd);
+                cardEl.addEventListener('click', () => handleCardClick(card));
+
+                cardPool.appendChild(cardEl);
+            });
+        }
+
+        // 拖拉事件綁定
+        let draggedCardId = null;
+
+        function bindDropZoneEvents() {
+            const lvl = gameLevels[currentLevelIndex];
+            const slotCount = lvl.structure.filter(item => item.type === "slot").length;
+
+            for (let i = 0; i < slotCount; i++) {
+                const zone = document.getElementById(`slot_${i}`);
+                if (!zone) continue;
+
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    const cardId = e.dataTransfer.getData('text/plain') || draggedCardId;
+                    if (cardId) placeCardInSlot(cardId, i);
+                });
+            }
+        }
+
+        function handleDragStart(e) {
+            draggedCardId = e.target.dataset.id;
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', draggedCardId);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleCardClick(card) {
+            const emptySlotIndex = userSelections.findIndex(val => val === null);
+            if (emptySlotIndex !== -1) {
+                placeCardInSlot(card.id, emptySlotIndex);
+            }
+        }
+
+        function placeCardInSlot(cardId, slotIndex) {
+            const lvl = gameLevels[currentLevelIndex];
+            const currentQuestion = lvl.subQuestions[currentSubQuestionIndex];
+            const cardData = currentQuestion.cards.find(c => c.id === cardId);
+            if (!cardData) return;
+
+            const existingIndex = userSelections.findIndex(id => id === cardId);
+            if (existingIndex !== -1) {
+                userSelections[existingIndex] = null;
+                resetZoneUI(existingIndex);
+            }
+
+            userSelections[slotIndex] = cardId;
+            const zone = document.getElementById(`slot_${slotIndex}`);
+            if (!zone) return;
+
+            zone.innerHTML = `
+                <div class="bg-white border-2 border-purple-300 text-purple-950 font-black text-lg px-3 py-1.5 rounded-xl shadow-sm flex items-center justify-between w-full pop-animation">
+                    <span>${cardData.text}</span>
+                    <button class="remove-btn text-rose-400 hover:text-rose-600 text-sm ml-1">✕</button>
+                </div>
+            `;
+
+            zone.querySelector('.remove-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                userSelections[slotIndex] = null;
+                resetZoneUI(slotIndex);
+            });
+        }
+
+        function resetZoneUI(slotIndex) {
+            const lvl = gameLevels[currentLevelIndex];
+            const slotItems = lvl.structure.filter(item => item.type === "slot");
+            const zone = document.getElementById(`slot_${slotIndex}`);
+            if (zone && slotItems[slotIndex]) {
+                zone.innerHTML = `<span class="text-slate-400 font-bold text-xs pointer-events-none">${slotItems[slotIndex].placeholder}</span>`;
+            }
+        }
+
+        // 驗證按鈕
+        checkBtn.addEventListener('click', () => {
+            if (userSelections.some(val => val === null)) {
+                showMessage("⚠️ 請將所有空白格子填滿後再驗證喔！", "warning");
+                return;
+            }
+
+            const lvl = gameLevels[currentLevelIndex];
+            const currentQuestion = lvl.subQuestions[currentSubQuestionIndex];
+            const userCardObjects = userSelections.map(id => currentQuestion.cards.find(c => c.id === id));
+            const userAnswers = userCardObjects.map(c => c.text);
+
+            const isCorrect = userAnswers.every((val, idx) => val === currentQuestion.target[idx]);
+
+            if (isCorrect) {
+                score += 10;
+                scoreText.textContent = score;
+
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                checkBtn.classList.add('hidden');
+
+                if (currentSubQuestionIndex < 2) {
+                    // 完成當前題目，進入本關下一題
+                    showMessage(`🎉 太棒了！答對第 ${currentSubQuestionIndex + 1} 題！請點擊按鈕挑戰下一題！`, "success");
+                    nextBtn.innerHTML = `進入第 ${currentSubQuestionIndex + 2} 題 <i class="fa-solid fa-arrow-right"></i>`;
+                    nextBtn.classList.remove('hidden');
+                } else {
+                    // 完成本關第 3 題，跳出通關彈窗
+                    showMessage("🌟 太強了！本關 3 題全數通關！", "success");
+                    setTimeout(() => {
+                        modalMsg.textContent = `你已成功征服 ${lvl.title} 的 3 道練習題，短語詞性掌握得非常完美！`;
+                        clearModal.classList.remove('hidden');
+                    }, 600);
+                }
+            } else {
+                let hintMsg = "";
+                const wrongCard = userCardObjects.find((card, idx) => card.text !== currentQuestion.target[idx]);
+
+                if (wrongCard && wrongCard.hint) {
+                    hintMsg = wrongCard.hint;
+                } else {
+                    hintMsg = "⚠️ 詞性或語意順序不太對喔！請重新參考上方【結構剖析】修正！";
+                }
+
+                showMessage(hintMsg, "error");
+
+                // 震動視覺反饋
+                const slotCount = lvl.structure.filter(i => i.type === "slot").length;
+                for (let i = 0; i < slotCount; i++) {
+                    const z = document.getElementById(`slot_${i}`);
+                    if (z) z.classList.add('shake-animation');
+                }
+                setTimeout(() => {
+                    for (let i = 0; i < slotCount; i++) {
+                        const z = document.getElementById(`slot_${i}`);
+                        if (z) z.classList.remove('shake-animation');
+                    }
+                }, 500);
+            }
+        });
+
+        function showMessage(msg, type) {
+            messageText.textContent = msg;
+            messageBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+
+            if (type === "success") {
+                messageBanner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            } else if (type === "error") {
+                messageBanner.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+            } else {
+                messageBanner.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+            }
+        }
+
+        // 點擊「進入下一題」
+        nextBtn.addEventListener('click', () => {
+            if (currentSubQuestionIndex < 2) {
+                currentSubQuestionIndex++;
+                loadLevel(currentLevelIndex);
+            }
+        });
+
+        // 彈窗「解鎖並進入下一關」
+        modalNextLevelBtn.addEventListener('click', () => {
+            clearModal.classList.add('hidden');
+            currentSubQuestionIndex = 0;
+            if (currentLevelIndex < gameLevels.length - 1) {
+                loadLevel(currentLevelIndex + 1);
+            } else {
+                loadLevel(0); // 循環通關
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            loadLevel(currentLevelIndex);
+        });
+
+        // 預設載入第 1 關第 1 題
+        loadLevel(0);
+    </script>
+</body>
+</html>
