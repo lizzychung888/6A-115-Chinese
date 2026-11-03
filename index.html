@@ -100,15 +100,21 @@
             國語短語 ✕ 成語互動挑戰特訓網
         </h1>
         
-        <!-- 大功能切換選單 (Tab 模式) -->
-        <div class="flex justify-center gap-3 mb-4">
-            <button id="tabPhrase" class="tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105 flex items-center gap-2">
+        <!-- 大功能切換選單 (Tab 模式：五大模組) -->
+        <div class="flex flex-wrap justify-center gap-3 mb-4">
+            <button id="tabPhrase" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105 flex items-center gap-2">
                 <i class="fa-solid fa-shapes"></i> 🧩 短語結構拼圖
             </button>
-            <button id="tabIdiom" class="tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 flex items-center gap-2">
+            <button id="tabIdiom" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 flex items-center gap-2">
                 <i class="fa-solid fa-book-sparkles"></i> 📜 成語情境挑戰
             </button>
-            <button id="tabDict" class="tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-sky-50 flex items-center gap-2">
+            <button id="tabRhetoric" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-amber-50 flex items-center gap-2">
+                <i class="fa-solid fa-masks-theater"></i> 🎭 修辭文法擂台
+            </button>
+            <button id="tabWord" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-rose-50 flex items-center gap-2">
+                <i class="fa-solid fa-magnifying-glass text-rose-500"></i> 🔍 字詞火眼金睛
+            </button>
+            <button id="tabDict" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-sky-50 flex items-center gap-2">
                 <i class="fa-solid fa-book-open-reader"></i> 📖 成語資料庫查詢
             </button>
         </div>
@@ -131,6 +137,20 @@
             <div class="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto" id="idiomLessonNavBtns">
                 <!-- 由 JS 動態生成第 1-6 課與全課總複習按鈕 -->
             </div>
+        </div>
+
+        <!-- 修辭擂台導航區 (修辭模式顯示) -->
+        <div id="rhetoricNavWrapper" class="hidden">
+            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
+                仔細閱讀 1-6 課經典語句，判斷其運用的核心修辭手法：
+            </p>
+        </div>
+
+        <!-- 字詞火眼金睛導航區 (字詞模式顯示) -->
+        <div id="wordNavWrapper" class="hidden">
+            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
+                化身字詞偵探！辨識 1-6 課大考必背的「形近錯別字」與「多音字讀音」：
+            </p>
         </div>
     </header>
 
@@ -290,7 +310,103 @@
             </div>
         </div>
 
-        <!-- ==================== 3. 成語資料庫查詢字典 ==================== -->
+        <!-- ==================== 3. 🎭 修辭文法擂台區域 ==================== -->
+        <div id="rhetoricSection" class="hidden flex flex-col gap-5">
+            <div class="bg-white/95 border-3 border-amber-200 p-5 rounded-3xl shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-3">
+                        <span id="rhetoricBadge" class="bg-amber-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                            第 1 題
+                        </span>
+                        <h2 class="text-xl font-black text-slate-800">
+                            1-6 課五大核心修辭大考驗
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-slate-500 font-bold text-sm">修辭得分：<strong id="rhetoricScoreText" class="text-2xl text-amber-500 font-black">0</strong></span>
+                    </div>
+                </div>
+                <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-2xl text-sm font-bold text-amber-900">
+                    💡 提示：包含【譬喻】、【轉化（擬人/擬物）】、【映襯】、【設問】與【引用】等重要修辭！
+                </div>
+            </div>
+
+            <div class="bg-white/95 border-4 border-amber-100 p-7 rounded-3xl shadow-xl backdrop-blur">
+                <div class="text-xs font-black text-amber-600 tracking-wider mb-2 text-center uppercase">Sentence Rhetoric</div>
+                <div id="rhetoricSentenceBox" class="text-xl md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
+                    <!-- 動態渲染修辭題目句子 -->
+                </div>
+
+                <div id="rhetoricMessageBanner" class="hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
+                    <span id="rhetoricMessageText"></span>
+                </div>
+            </div>
+
+            <div class="bg-white/90 border-2 border-amber-200 p-5 rounded-3xl shadow-sm">
+                <h3 class="text-slate-700 font-black text-base mb-3 text-center">
+                    👇 請點選該句子運用的修辭手法：
+                </h3>
+                <div id="rhetoricOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- 動態渲染修辭選項 -->
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button id="rhetoricNextBtn" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 4. 🔍 字詞火眼金睛區域 ==================== -->
+        <div id="wordSection" class="hidden flex flex-col gap-5">
+            <div class="bg-white/95 border-3 border-rose-200 p-5 rounded-3xl shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-3">
+                        <span id="wordBadge" class="bg-rose-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                            第 1 題
+                        </span>
+                        <h2 id="wordTypeTitle" class="text-xl font-black text-slate-800">
+                            錯別字找碴 ✕ 多音字破音辨析
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-slate-500 font-bold text-sm">偵探得分：<strong id="wordScoreText" class="text-2xl text-rose-500 font-black">0</strong></span>
+                    </div>
+                </div>
+                <div class="bg-rose-50/80 border border-rose-200 p-3 rounded-2xl text-sm font-bold text-rose-900">
+                    🔍 任務提示：仔細看清句子中的字形與發音陷阱，選出正確的答案！
+                </div>
+            </div>
+
+            <div class="bg-white/95 border-4 border-rose-100 p-7 rounded-3xl shadow-xl backdrop-blur">
+                <div id="wordQuestionTag" class="text-xs font-black text-rose-600 tracking-wider mb-2 text-center uppercase">Word Detective</div>
+                <div id="wordSentenceBox" class="text-xl md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
+                    <!-- 動態渲染字詞題目 -->
+                </div>
+
+                <div id="wordMessageBanner" class="hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
+                    <span id="wordMessageText"></span>
+                </div>
+            </div>
+
+            <div class="bg-white/90 border-2 border-rose-200 p-5 rounded-3xl shadow-sm">
+                <h3 id="wordOptionHeading" class="text-slate-700 font-black text-base mb-3 text-center">
+                    👇 請點選正確答案：
+                </h3>
+                <div id="wordOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- 動態渲染選項卡片 -->
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button id="wordNextBtn" class="hidden bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 5. 成語資料庫查詢字典 ==================== -->
         <div id="dictSection" class="hidden flex flex-col gap-4">
             <div class="bg-white/95 border-3 border-sky-200 p-5 rounded-3xl shadow-md">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-3">
@@ -613,43 +729,66 @@
         ];
 
         /* 全域導航狀態控制 */
-        let activeTab = 'phrase'; // 'phrase' | 'idiom' | 'dict'
+        let activeTab = 'phrase'; // 'phrase' | 'idiom' | 'rhetoric' | 'word' | 'dict'
         let idiomLevelIndex = 0;
         let idiomSubQuestionIndex = 0;
         let idiomScore = 0;
 
         const tabPhrase = document.getElementById('tabPhrase');
         const tabIdiom = document.getElementById('tabIdiom');
+        const tabRhetoric = document.getElementById('tabRhetoric');
+        const tabWord = document.getElementById('tabWord');
         const tabDict = document.getElementById('tabDict');
+
         const phraseSection = document.getElementById('phraseSection');
         const idiomSection = document.getElementById('idiomSection');
+        const rhetoricSection = document.getElementById('rhetoricSection');
+        const wordSection = document.getElementById('wordSection');
         const dictSection = document.getElementById('dictSection');
+
         const phraseNavWrapper = document.getElementById('phraseNavWrapper');
         const idiomNavWrapper = document.getElementById('idiomNavWrapper');
+        const rhetoricNavWrapper = document.getElementById('rhetoricNavWrapper');
+        const wordNavWrapper = document.getElementById('wordNavWrapper');
 
         function switchTab(tabName) {
             activeTab = tabName;
-            [tabPhrase, tabIdiom, tabDict].forEach(b => {
-                b.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
+            [tabPhrase, tabIdiom, tabRhetoric, tabWord, tabDict].forEach(b => {
+                b.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
             });
 
             phraseSection.classList.add('hidden');
             idiomSection.classList.add('hidden');
+            rhetoricSection.classList.add('hidden');
+            wordSection.classList.add('hidden');
             dictSection.classList.add('hidden');
+
             phraseNavWrapper.classList.add('hidden');
             idiomNavWrapper.classList.add('hidden');
+            rhetoricNavWrapper.classList.add('hidden');
+            wordNavWrapper.classList.add('hidden');
 
             if (tabName === 'phrase') {
-                tabPhrase.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105";
+                tabPhrase.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105";
                 phraseSection.classList.remove('hidden');
                 phraseNavWrapper.classList.remove('hidden');
             } else if (tabName === 'idiom') {
-                tabIdiom.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-emerald-500 text-white border-emerald-400 scale-105";
+                tabIdiom.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-emerald-500 text-white border-emerald-400 scale-105";
                 idiomSection.classList.remove('hidden');
                 idiomNavWrapper.classList.remove('hidden');
                 loadIdiomQuestion();
+            } else if (tabName === 'rhetoric') {
+                tabRhetoric.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-amber-500 text-white border-amber-400 scale-105";
+                rhetoricSection.classList.remove('hidden');
+                rhetoricNavWrapper.classList.remove('hidden');
+                loadRhetoricQuestion();
+            } else if (tabName === 'word') {
+                tabWord.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-rose-500 text-white border-rose-400 scale-105";
+                wordSection.classList.remove('hidden');
+                wordNavWrapper.classList.remove('hidden');
+                loadWordQuestion();
             } else if (tabName === 'dict') {
-                tabDict.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-sky-500 text-white border-sky-400 scale-105";
+                tabDict.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-sky-500 text-white border-sky-400 scale-105";
                 dictSection.classList.remove('hidden');
                 renderDictCards('all', '');
             }
@@ -657,6 +796,8 @@
 
         tabPhrase.addEventListener('click', () => switchTab('phrase'));
         tabIdiom.addEventListener('click', () => switchTab('idiom'));
+        tabRhetoric.addEventListener('click', () => switchTab('rhetoric'));
+        tabWord.addEventListener('click', () => switchTab('word'));
         tabDict.addEventListener('click', () => switchTab('dict'));
 
         /* ========================================================
@@ -961,6 +1102,224 @@
 
         dictSearchInput.addEventListener('input', (e) => {
             renderDictCards(currentFilterLesson, e.target.value);
+        });
+
+        /* ========================================================
+           3-B. 🎭 修辭文法擂台邏輯
+           ======================================================== */
+        const rhetoricQuestions = [
+            {
+                sentence: "「以往只曉得關心自己，現在才懂得去關心別人。」（第2課）",
+                answer: "映襯",
+                options: ["映襯", "譬喻", "設問", "引用"],
+                explanation: "句中將「以往只關心自己」與「現在懂得關心別人」兩相對照，屬於正反對比的映襯修辭！"
+            },
+            {
+                sentence: "「明亮的優點與陰暗的缺點，是天註定，或由我決定？」（第1課）",
+                answer: "設問",
+                options: ["設問", "轉化", "映襯", "譬喻"],
+                explanation: "句尾使用問號，提出內心的探問與深思，屬於設問修辭（疑問/提問）！"
+            },
+            {
+                sentence: "「春風輕柔的拂過杏樹林。」（第3課）",
+                answer: "轉化（擬人）",
+                options: ["轉化（擬人）", "譬喻", "映襯", "引用"],
+                explanation: "將沒有生命的「春風」賦予人的動作「輕柔的拂過」，屬於擬人化的轉化修辭！"
+            },
+            {
+                sentence: "「子曰：『三人行，必有我師焉。』」（第3課）",
+                answer: "引用",
+                options: ["引用", "譬喻", "映襯", "設問"],
+                explanation: "直接引用孔子在《論語》中的名言，屬於引用修辭！"
+            },
+            {
+                sentence: "「讓心情更開朗的良藥。」（第2課）",
+                answer: "譬喻",
+                options: ["譬喻", "轉化（擬人）", "設問", "映襯"],
+                explanation: "把使心情豁達的體貼比喻為「良藥」，省略比喻詞，屬於譬喻修辭！"
+            }
+        ];
+
+        let rhetoricIdx = 0;
+        let rhetoricScore = 0;
+        const rhetoricBadge = document.getElementById('rhetoricBadge');
+        const rhetoricScoreText = document.getElementById('rhetoricScoreText');
+        const rhetoricSentenceBox = document.getElementById('rhetoricSentenceBox');
+        const rhetoricOptionPool = document.getElementById('rhetoricOptionPool');
+        const rhetoricMessageBanner = document.getElementById('rhetoricMessageBanner');
+        const rhetoricMessageText = document.getElementById('rhetoricMessageText');
+        const rhetoricNextBtn = document.getElementById('rhetoricNextBtn');
+
+        function loadRhetoricQuestion() {
+            const q = rhetoricQuestions[rhetoricIdx];
+            rhetoricBadge.textContent = `第 ${rhetoricIdx + 1} / ${rhetoricQuestions.length} 題`;
+            rhetoricSentenceBox.textContent = q.sentence;
+            rhetoricMessageBanner.classList.add('hidden');
+            rhetoricNextBtn.classList.add('hidden');
+
+            rhetoricOptionPool.innerHTML = '';
+            const colors = [
+                'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950',
+                'bg-purple-50 hover:bg-purple-100 border-purple-300 text-purple-950',
+                'bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-950',
+                'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-950'
+            ];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `${colors[idx % 4]} p-4 rounded-2xl border-2 font-black text-xl shadow-sm hover:shadow-md transition active:scale-95 flex items-center justify-center`;
+                btn.textContent = opt;
+                btn.addEventListener('click', () => checkRhetoricAnswer(opt, q));
+                rhetoricOptionPool.appendChild(btn);
+            });
+        }
+
+        function checkRhetoricAnswer(selected, q) {
+            Array.from(rhetoricOptionPool.children).forEach(c => c.disabled = true);
+            if (selected === q.answer) {
+                rhetoricScore += 20;
+                rhetoricScoreText.textContent = rhetoricScore;
+                confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+                showRhetoricMessage(`🎉 答對了！【${q.answer}】解析：${q.explanation}`, "success");
+            } else {
+                showRhetoricMessage(`⚠️ 答錯了！正確答案是【${q.answer}】。解析：${q.explanation}`, "error");
+            }
+            if (rhetoricIdx < rhetoricQuestions.length - 1) {
+                rhetoricNextBtn.classList.remove('hidden');
+            }
+        }
+
+        function showRhetoricMessage(msg, type) {
+            rhetoricMessageText.textContent = msg;
+            rhetoricMessageBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+            if (type === "success") {
+                rhetoricMessageBanner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            } else {
+                rhetoricMessageBanner.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+            }
+        }
+
+        rhetoricNextBtn.addEventListener('click', () => {
+            rhetoricIdx++;
+            loadRhetoricQuestion();
+        });
+
+        /* ========================================================
+           3-C. 🔍 字詞火眼金睛邏輯（錯別字找碴 ✕ 一字多音）
+           ======================================================== */
+        const wordQuestions = [
+            {
+                type: "錯別字找碴",
+                sentence: "他平日花錢毫無節制，每到月底就陷入捉「禁」見肘的困境。",
+                target: "禁",
+                answer: "襟",
+                options: ["襟", "禁", "筋", "斤"],
+                explanation: "「捉襟見肘」比喻短缺不足的窘態。「襟」是衣服胸前拉攏的衣襟（衣部），不可寫成禁止的「禁」！"
+            },
+            {
+                type: "錯別字找碴",
+                sentence: "他在困境中奮發向上，終於創造出令人驚嘆的奇「積」。",
+                target: "積",
+                answer: "蹟",
+                options: ["蹟", "積", "績", "跡"],
+                explanation: "「奇蹟」指罕見、出乎意料的事蹟，應作「蹟」或「跡」，不能寫成累積的「積」！"
+            },
+            {
+                type: "錯別字找碴",
+                sentence: "大樹在炎炎夏日給予行人們綠蔭「批」護。",
+                target: "批",
+                answer: "庇",
+                options: ["庇", "批", "披", "屁"],
+                explanation: "「庇護」是指遮蔽與保護，要寫成廣部的「庇」，不能寫成批評的「批」！"
+            },
+            {
+                type: "多音字辨析",
+                sentence: "「他為人圓融，在待人接【處】方面深受好評。」請問【處】字的正確讀音？",
+                target: "處",
+                answer: "ㄔㄨˇ",
+                options: ["ㄔㄨˇ", "ㄔㄨˋ"],
+                explanation: "「處世」、「相處」、「處理」讀作三聲【ㄔㄨˇ】；「處所」、「長處」才讀四聲【ㄔㄨˋ】！"
+            },
+            {
+                type: "多音字辨析",
+                sentence: "「這條山路迂迴曲折，走到底需要轉彎【抹】角。」請問【抹】字的正確讀音？",
+                target: "抹",
+                answer: "ㄇㄛˋ",
+                options: ["ㄇㄛˋ", "ㄇㄚˇ", "ㄇㄛˇ"],
+                explanation: "「轉彎抹角」讀作四聲【ㄇㄛˋ】；「抹布」讀【ㄇㄚˇ】；「塗抹」讀【ㄇㄛˇ】！"
+            }
+        ];
+
+        let wordIdx = 0;
+        let wordScore = 0;
+        const wordBadge = document.getElementById('wordBadge');
+        const wordTypeTitle = document.getElementById('wordTypeTitle');
+        const wordSentenceBox = document.getElementById('wordSentenceBox');
+        const wordOptionPool = document.getElementById('wordOptionPool');
+        const wordOptionHeading = document.getElementById('wordOptionHeading');
+        const wordMessageBanner = document.getElementById('wordMessageBanner');
+        const wordMessageText = document.getElementById('wordMessageText');
+        const wordNextBtn = document.getElementById('wordNextBtn');
+
+        function loadWordQuestion() {
+            const q = wordQuestions[wordIdx];
+            wordBadge.textContent = `第 ${wordIdx + 1} / ${wordQuestions.length} 題`;
+            wordTypeTitle.textContent = q.type;
+            wordSentenceBox.innerHTML = q.sentence;
+            wordMessageBanner.classList.add('hidden');
+            wordNextBtn.classList.add('hidden');
+
+            if (q.type === "錯別字找碴") {
+                wordOptionHeading.textContent = `👇 請選出句子中標註字【${q.target}】的正確國字：`;
+            } else {
+                wordOptionHeading.textContent = `👇 請選出正確讀音：`;
+            }
+
+            wordOptionPool.innerHTML = '';
+            const colors = [
+                'bg-rose-50 hover:bg-rose-100 border-rose-300 text-rose-950',
+                'bg-sky-50 hover:bg-sky-100 border-sky-300 text-sky-950',
+                'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-950',
+                'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950'
+            ];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `${colors[idx % 4]} p-4 rounded-2xl border-2 font-black text-2xl shadow-sm hover:shadow-md transition active:scale-95 flex items-center justify-center`;
+                btn.textContent = opt;
+                btn.addEventListener('click', () => checkWordAnswer(opt, q));
+                wordOptionPool.appendChild(btn);
+            });
+        }
+
+        function checkWordAnswer(selected, q) {
+            Array.from(wordOptionPool.children).forEach(c => c.disabled = true);
+            if (selected === q.answer) {
+                wordScore += 20;
+                wordScoreText.textContent = wordScore;
+                confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
+                showWordMessage(`🎉 太厲害了！完全正確！【${q.answer}】解析：${q.explanation}`, "success");
+            } else {
+                showWordMessage(`⚠️ 答錯囉！正確答案是【${q.answer}】。解析：${q.explanation}`, "error");
+            }
+            if (wordIdx < wordQuestions.length - 1) {
+                wordNextBtn.classList.remove('hidden');
+            }
+        }
+
+        function showWordMessage(msg, type) {
+            wordMessageText.textContent = msg;
+            wordMessageBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+            if (type === "success") {
+                wordMessageBanner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            } else {
+                wordMessageBanner.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+            }
+        }
+
+        wordNextBtn.addEventListener('click', () => {
+            wordIdx++;
+            loadWordQuestion();
         });
 
         /* ========================================================
