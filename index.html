@@ -843,9 +843,878 @@
             renderDictCards(currentFilterLesson, e.target.value);
         });
 
-        /* 初始化原有的短語關卡 */
-        initNavBtns();
-        loadLevel(0);
+        /* ========================================================
+           4. 短語完整關卡題庫與邏輯（講義 8 大結構 + 核心句型，每關 3 題）
+           ======================================================== */
+        const phraseLevels = [
+            {
+                id: 0,
+                badge: "核心句型",
+                name: "在…找到…的…",
+                formula: "在 ＋ 名詞(地點/範圍＋方位) ＋ 找到 ＋ 名詞(事物) ＋ 的 ＋ 形容詞(特質)",
+                example: "在 樹梢上 找到 風 的 淘氣",
+                questions: [
+                    {
+                        title: "第 1 題：樹梢與風的淘氣",
+                        slots: [
+                            { role: "fixed", text: "在" },
+                            { role: "slot", index: 0, placeholder: "地點＋方位", expected: "樹梢上" },
+                            { role: "fixed", text: "找到" },
+                            { role: "slot", index: 1, placeholder: "事物名詞", expected: "風" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "特質/形容詞", expected: "淘氣" }
+                        ],
+                        cards: [
+                            { text: "樹梢上", type: "correct", hint: "" },
+                            { text: "風", type: "correct", hint: "" },
+                            { text: "淘氣", type: "correct", hint: "" },
+                            { text: "樹梢", type: "distractor", hint: "⚠️「樹梢」缺少了方位詞「上」喔！寫成「樹梢上」空間位置更明確！" },
+                            { text: "吹拂", type: "distractor", hint: "⚠️「吹拂」是動詞，第二格需要名詞事物對象喔！" },
+                            { text: "淘氣的", type: "distractor", hint: "⚠️ 卡片重複了「的」！後面已經有印好的「的」字囉！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：花叢中春天的可愛",
+                        slots: [
+                            { role: "fixed", text: "在" },
+                            { role: "slot", index: 0, placeholder: "地點＋方位", expected: "花叢中" },
+                            { role: "fixed", text: "找到" },
+                            { role: "slot", index: 1, placeholder: "事物名詞", expected: "春天" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "特質/形容詞", expected: "可愛" }
+                        ],
+                        cards: [
+                            { text: "花叢中", type: "correct", hint: "" },
+                            { text: "春天", type: "correct", hint: "" },
+                            { text: "可愛", type: "correct", hint: "" },
+                            { text: "花叢", type: "distractor", hint: "⚠️ 缺少方位詞「中」喔！加上「中」能更具體呈現範圍！" },
+                            { text: "盛開", type: "distractor", hint: "⚠️「盛開」是動詞，不是名詞對象喔！" },
+                            { text: "美麗的", type: "distractor", hint: "⚠️ 卡片多帶了「的」，會造成句子重複「的」喔！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：書本裡自己的影子",
+                        slots: [
+                            { role: "fixed", text: "在" },
+                            { role: "slot", index: 0, placeholder: "地點＋方位", expected: "書本裡" },
+                            { role: "fixed", text: "找到" },
+                            { role: "slot", index: 1, placeholder: "事物/對象", expected: "自己" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "特質/抽象表現", expected: "影子" }
+                        ],
+                        cards: [
+                            { text: "書本裡", type: "correct", hint: "" },
+                            { text: "自己", type: "correct", hint: "" },
+                            { text: "影子", type: "correct", hint: "" },
+                            { text: "讀書", type: "distractor", hint: "⚠️「讀書」是動作，第一格需要地點範圍喔！" },
+                            { text: "寫照", type: "distractor", hint: "⚠️「寫照」接上印好的「的」會使整句卡住，改用「影子」更通順！" },
+                            { text: "認真的", type: "distractor", hint: "⚠️ 卡片多包含了「的」，請注意外面已經印好的「的」！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 1,
+                badge: "結構一",
+                name: "動詞＋量詞＋形容詞＋的名詞",
+                formula: "動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)",
+                example: "摘 一片 雪白 的 雲",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（摘一片雪白的雲）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "動詞(動作)", expected: "摘" },
+                            { role: "fixed", text: "一" },
+                            { role: "slot", index: 1, placeholder: "量詞", expected: "片" },
+                            { role: "slot", index: 2, placeholder: "形容詞", expected: "雪白" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 3, placeholder: "名詞(事物)", expected: "雲" }
+                        ],
+                        cards: [
+                            { text: "摘", type: "correct", hint: "" },
+                            { text: "片", type: "correct", hint: "" },
+                            { text: "雪白", type: "correct", hint: "" },
+                            { text: "雲", type: "correct", hint: "" },
+                            { text: "白雲", type: "distractor", hint: "⚠️「白雲」把形容詞和名詞混在一起了，需要拆開對應喔！" },
+                            { text: "飛翔", type: "distractor", hint: "⚠️「飛翔」不是用手做的「動作(動詞)」喔！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（寫一頁工整的硬筆字）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "動詞(動作)", expected: "寫" },
+                            { role: "fixed", text: "一" },
+                            { role: "slot", index: 1, placeholder: "量詞", expected: "頁" },
+                            { role: "slot", index: 2, placeholder: "形容詞", expected: "工整" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 3, placeholder: "名詞(事物)", expected: "硬筆字" }
+                        ],
+                        cards: [
+                            { text: "寫", type: "correct", hint: "" },
+                            { text: "頁", type: "correct", hint: "" },
+                            { text: "工整", type: "correct", hint: "" },
+                            { text: "硬筆字", type: "correct", hint: "" },
+                            { text: "顆", type: "distractor", hint: "⚠️ 紙張書籍要用「頁」或「張」，不能用「顆」喔！" },
+                            { text: "漂亮地", type: "distractor", hint: "⚠️「漂亮地」是副詞，這裡需要修飾名詞的形容詞！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（吃一顆苦澀的藥丸）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "動詞(動作)", expected: "吃" },
+                            { role: "fixed", text: "一" },
+                            { role: "slot", index: 1, placeholder: "量詞", expected: "顆" },
+                            { role: "slot", index: 2, placeholder: "形容詞", expected: "苦澀" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 3, placeholder: "名詞(事物)", expected: "藥丸" }
+                        ],
+                        cards: [
+                            { text: "吃", type: "correct", hint: "" },
+                            { text: "顆", type: "correct", hint: "" },
+                            { text: "苦澀", type: "correct", hint: "" },
+                            { text: "藥丸", type: "correct", hint: "" },
+                            { text: "喝", type: "distractor", hint: "⚠️ 固體藥丸是用「吃/吞」，不是用「喝」喔！" },
+                            { text: "甜甜的", type: "distractor", hint: "⚠️ 卡片重複了「的」！後面已經有印好的「的」囉！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                badge: "結構二",
+                name: "把＋負面＋動詞＋成＋正面",
+                formula: "把 ＋ 名詞(負面) ＋ 動詞(動作) ＋ 成 ＋ 名詞(正面)",
+                example: "把 幽暗 抹 成 光明",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（把幽暗抹成光明）",
+                        slots: [
+                            { role: "fixed", text: "把" },
+                            { role: "slot", index: 0, placeholder: "名詞(負面)", expected: "幽暗" },
+                            { role: "slot", index: 1, placeholder: "動詞(動作)", expected: "抹" },
+                            { role: "fixed", text: "成" },
+                            { role: "slot", index: 2, placeholder: "名詞(正面)", expected: "光明" }
+                        ],
+                        cards: [
+                            { text: "幽暗", type: "correct", hint: "" },
+                            { text: "抹", type: "correct", hint: "" },
+                            { text: "光明", type: "correct", hint: "" },
+                            { text: "黑暗的", type: "distractor", hint: "⚠️「黑暗的」是形容詞，第一格需要名詞喔！" },
+                            { text: "變成", type: "distractor", hint: "⚠️ 後面已經印好「成」字，填「變成」會重複成字！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（把缺點改成優點）",
+                        slots: [
+                            { role: "fixed", text: "把" },
+                            { role: "slot", index: 0, placeholder: "名詞(負面)", expected: "缺點" },
+                            { role: "slot", index: 1, placeholder: "動詞(動作)", expected: "改" },
+                            { role: "fixed", text: "成" },
+                            { role: "slot", index: 2, placeholder: "名詞(正面)", expected: "優點" }
+                        ],
+                        cards: [
+                            { text: "缺點", type: "correct", hint: "" },
+                            { text: "改", type: "correct", hint: "" },
+                            { text: "優點", type: "correct", hint: "" },
+                            { text: "錯誤地", type: "distractor", hint: "⚠️「錯誤地」是副詞，不能當第一格的負面名詞！" },
+                            { text: "修正成", type: "distractor", hint: "⚠️ 勿選包含「成」的詞卡，會與固定字重複！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（把挫折當成養分）",
+                        slots: [
+                            { role: "fixed", text: "把" },
+                            { role: "slot", index: 0, placeholder: "名詞(負面)", expected: "挫折" },
+                            { role: "slot", index: 1, placeholder: "動詞(動作)", expected: "當" },
+                            { role: "fixed", text: "成" },
+                            { role: "slot", index: 2, placeholder: "名詞(正面)", expected: "養分" }
+                        ],
+                        cards: [
+                            { text: "挫折", type: "correct", hint: "" },
+                            { text: "當", type: "correct", hint: "" },
+                            { text: "養分", type: "correct", hint: "" },
+                            { text: "失敗的", type: "distractor", hint: "⚠️「失敗的」帶有「的」，詞性為形容詞！" },
+                            { text: "視為", type: "distractor", hint: "⚠️「視為」接上後面的「成」字語意會不通順！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                badge: "結構三",
+                name: "名詞＋一＋形容詞(感受)",
+                formula: "名詞(事物/部位) ＋ 一 ＋ 形容詞(感受)",
+                example: "心裡 一 涼",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（心裡一涼）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "名詞(事物/部位)", expected: "心裡" },
+                            { role: "fixed", text: "一" },
+                            { role: "slot", index: 1, placeholder: "形容詞(感受)", expected: "涼" }
+                        ],
+                        cards: [
+                            { text: "心裡", type: "correct", hint: "" },
+                            { text: "涼", type: "correct", hint: "" },
+                            { text: "冷冰冰", type: "distractor", hint: "⚠️ 配合「一」字，感受詞通常為單字形容詞喔！" },
+                            { text: "思考", type: "distractor", hint: "⚠️「思考」是動詞，不是身體或心裡的部位！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（鼻頭一酸）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "名詞(身體部位)", expected: "鼻頭" },
+                            { role: "fixed", text: "一" },
+                            { role: "slot", index: 1, placeholder: "形容詞(感受)", expected: "酸" }
+                        ],
+                        cards: [
+                            { text: "鼻頭", type: "correct", hint: "" },
+                            { text: "酸", type: "correct", hint: "" },
+                            { text: "鼻子", type: "distractor", hint: "⚠️「鼻頭」較「鼻子」更精準對應感動想哭的生理部位！" },
+                            { text: "痛楚", type: "distractor", hint: "⚠️「痛楚」是二字名詞，接在「一」後面不順口！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（頭皮一麻）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "名詞(身體部位)", expected: "頭皮" },
+                            { role: "fixed", text: "一" },
+                            { role: "slot", index: 1, placeholder: "形容詞(感受)", expected: "麻" }
+                        ],
+                        cards: [
+                            { text: "頭皮", type: "correct", hint: "" },
+                            { text: "麻", type: "correct", hint: "" },
+                            { text: "腦袋", type: "distractor", hint: "⚠️「頭皮」才能生動對應受驚嚇時「一麻」的感覺！" },
+                            { text: "害怕", type: "distractor", hint: "⚠️「害怕」是情緒動詞/形容詞，不是生理感覺！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                badge: "結構四",
+                name: "動詞＋到＋形容詞＋的名詞",
+                formula: "動詞(動作) ＋ 到 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物或感受)",
+                example: "感覺 到 真正 的 孤獨",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（感覺到真正的孤獨）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "動詞(動作)", expected: "感覺" },
+                            { role: "fixed", text: "到" },
+                            { role: "slot", index: 1, placeholder: "形容詞", expected: "真正" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "名詞(事物/感受)", expected: "孤獨" }
+                        ],
+                        cards: [
+                            { text: "感覺", type: "correct", hint: "" },
+                            { text: "真正", type: "correct", hint: "" },
+                            { text: "孤獨", type: "correct", hint: "" },
+                            { text: "收到", type: "distractor", hint: "⚠️ 卡片已包含「到」，會與固定字重複！" },
+                            { text: "孤單的", type: "distractor", hint: "⚠️ 卡片多帶了「的」，請注意印好的「的」！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（品嚐到精緻的料理）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "動詞(動作)", expected: "品嚐" },
+                            { role: "fixed", text: "到" },
+                            { role: "slot", index: 1, placeholder: "形容詞", expected: "精緻" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "名詞(事物)", expected: "料理" }
+                        ],
+                        cards: [
+                            { text: "品嚐", type: "correct", hint: "" },
+                            { text: "精緻", type: "correct", hint: "" },
+                            { text: "料理", type: "correct", hint: "" },
+                            { text: "好吃", type: "distractor", hint: "⚠️「精緻」更能修飾料理的高雅品質！" },
+                            { text: "吃飽", type: "distractor", hint: "⚠️「吃飽」是狀態補語，不是動作動詞！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（遭遇到空前的災難）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "動詞(動作)", expected: "遭遇" },
+                            { role: "fixed", text: "到" },
+                            { role: "slot", index: 1, placeholder: "形容詞", expected: "空前" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "名詞(事物)", expected: "災難" }
+                        ],
+                        cards: [
+                            { text: "遭遇", type: "correct", hint: "" },
+                            { text: "空前", type: "correct", hint: "" },
+                            { text: "災難", type: "correct", hint: "" },
+                            { text: "碰見", type: "distractor", hint: "⚠️ 面對災難或歷史情境，「遭遇」語意更貼切！" },
+                            { text: "危險的", type: "distractor", hint: "⚠️ 卡片重複「的」，會導致句子不通順！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 5,
+                badge: "結構五",
+                name: "名詞＋副詞的＋動詞＋名詞",
+                formula: "名詞(事物) ＋ 副詞(如何) ＋ 的 ＋ 動詞(動作) ＋ 名詞(事物)",
+                example: "春風 輕柔 的 拂過 杏樹林",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（春風輕柔的拂過杏樹林）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "名詞(事物)", expected: "春風" },
+                            { role: "slot", index: 1, placeholder: "副詞(如何)", expected: "輕柔" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "動詞(動作)", expected: "拂過" },
+                            { role: "slot", index: 3, placeholder: "名詞(事物)", expected: "杏樹林" }
+                        ],
+                        cards: [
+                            { text: "春風", type: "correct", hint: "" },
+                            { text: "輕柔", type: "correct", hint: "" },
+                            { text: "拂過", type: "correct", hint: "" },
+                            { text: "杏樹林", type: "correct", hint: "" },
+                            { text: "吹動著", type: "distractor", hint: "⚠️ 勿用帶有「著」的動詞，維持二字動詞！" },
+                            { text: "森林裡", type: "distractor", hint: "⚠️ 最後一格為受詞名詞，不需加方位詞！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（海浪輕輕的拍打沙灘）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "名詞(事物)", expected: "海浪" },
+                            { role: "slot", index: 1, placeholder: "副詞(如何)", expected: "輕輕" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "動詞(動作)", expected: "拍打" },
+                            { role: "slot", index: 3, placeholder: "名詞(事物)", expected: "沙灘" }
+                        ],
+                        cards: [
+                            { text: "海浪", type: "correct", hint: "" },
+                            { text: "輕輕", type: "correct", hint: "" },
+                            { text: "拍打", type: "correct", hint: "" },
+                            { text: "沙灘", type: "correct", hint: "" },
+                            { text: "衝擊著", type: "distractor", hint: "⚠️ 動詞需維持精簡，勿帶贅字「著」！" },
+                            { text: "猛烈", type: "distractor", hint: "⚠️「輕輕」語意柔和，配合海浪的輕拍！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（強風無情的吹襲城鎮）",
+                        slots: [
+                            { role: "slot", index: 0, placeholder: "名詞(事物)", expected: "強風" },
+                            { role: "slot", index: 1, placeholder: "副詞(如何)", expected: "無情" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "動詞(動作)", expected: "吹襲" },
+                            { role: "slot", index: 3, placeholder: "名詞(事物)", expected: "城鎮" }
+                        ],
+                        cards: [
+                            { text: "強風", type: "correct", hint: "" },
+                            { text: "無情", type: "correct", hint: "" },
+                            { text: "吹襲", type: "correct", hint: "" },
+                            { text: "城鎮", type: "correct", hint: "" },
+                            { text: "颳風", type: "distractor", hint: "⚠️「颳風」是動名詞組合，第一格只要主詞名詞！" },
+                            { text: "破壞", type: "distractor", hint: "⚠️ 形容風的動作，「吹襲」比「破壞」更貼切！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 6,
+                badge: "結構六",
+                name: "與＋形容詞＋的名詞＋動詞",
+                formula: "與 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物/人物) ＋ 動詞(發生什麼)",
+                example: "與 更好 的 自己 相遇",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（與更好的自己相遇）",
+                        slots: [
+                            { role: "fixed", text: "與" },
+                            { role: "slot", index: 0, placeholder: "形容詞(怎樣)", expected: "更好" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 1, placeholder: "名詞(人物)", expected: "自己" },
+                            { role: "slot", index: 2, placeholder: "動詞(發生什麼)", expected: "相遇" }
+                        ],
+                        cards: [
+                            { text: "更好", type: "correct", hint: "" },
+                            { text: "自己", type: "correct", hint: "" },
+                            { text: "相遇", type: "correct", hint: "" },
+                            { text: "遇見", type: "distractor", hint: "⚠️ 課本短語結尾使用互為對象的「相遇」！" },
+                            { text: "優秀的", type: "distractor", hint: "⚠️ 卡片重複「的」，會導致格式錯誤！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（與難忘的故人重逢）",
+                        slots: [
+                            { role: "fixed", text: "與" },
+                            { role: "slot", index: 0, placeholder: "形容詞(怎樣)", expected: "難忘" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 1, placeholder: "名詞(人物)", expected: "故人" },
+                            { role: "slot", index: 2, placeholder: "動詞(發生什麼)", expected: "重逢" }
+                        ],
+                        cards: [
+                            { text: "難忘", type: "correct", hint: "" },
+                            { text: "故人", type: "correct", hint: "" },
+                            { text: "重逢", type: "correct", hint: "" },
+                            { text: "朋友", type: "distractor", hint: "⚠️「故人」對應「重逢」更能表現歲月久別的情懷！" },
+                            { text: "見面", type: "distractor", hint: "⚠️「重逢」比「見面」更具文采！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（與離奇的事情交錯）",
+                        slots: [
+                            { role: "fixed", text: "與" },
+                            { role: "slot", index: 0, placeholder: "形容詞(怎樣)", expected: "離奇" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 1, placeholder: "名詞(事物)", expected: "事情" },
+                            { role: "slot", index: 2, placeholder: "動詞(發生什麼)", expected: "交錯" }
+                        ],
+                        cards: [
+                            { text: "離奇", type: "correct", hint: "" },
+                            { text: "事情", type: "correct", hint: "" },
+                            { text: "交錯", type: "correct", hint: "" },
+                            { text: "奇怪的", type: "distractor", hint: "⚠️ 避免包含「的」的干擾卡片！" },
+                            { text: "發生", type: "distractor", hint: "⚠️「交錯」更能表現事情錯綜複雜交會的動態！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 7,
+                badge: "結構七",
+                name: "讓＋名詞＋更形容詞＋的名詞",
+                formula: "讓 ＋ 名詞(對象) ＋ 更 ＋ 形容詞(如何) ＋ 的 ＋ 名詞(事物)",
+                example: "讓 生活 更 美好 的 解答",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（讓生活更美好的解答）",
+                        slots: [
+                            { role: "fixed", text: "讓" },
+                            { role: "slot", index: 0, placeholder: "名詞(對象)", expected: "生活" },
+                            { role: "fixed", text: "更" },
+                            { role: "slot", index: 1, placeholder: "形容詞", expected: "美好" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "名詞(事物)", expected: "解答" }
+                        ],
+                        cards: [
+                            { text: "生活", type: "correct", hint: "" },
+                            { text: "美好", type: "correct", hint: "" },
+                            { text: "解答", type: "correct", hint: "" },
+                            { text: "更加", type: "distractor", hint: "⚠️ 題目已有固定字「更」，填「更加」會重複！" },
+                            { text: "答案", type: "distractor", hint: "⚠️ 課本短語標準答案為「解答」喔！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（讓心情更開朗的良藥）",
+                        slots: [
+                            { role: "fixed", text: "讓" },
+                            { role: "slot", index: 0, placeholder: "名詞(對象)", expected: "心情" },
+                            { role: "fixed", text: "更" },
+                            { role: "slot", index: 1, placeholder: "形容詞", expected: "開朗" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "名詞(事物)", expected: "良藥" }
+                        ],
+                        cards: [
+                            { text: "心情", type: "correct", hint: "" },
+                            { text: "開朗", type: "correct", hint: "" },
+                            { text: "良藥", type: "correct", hint: "" },
+                            { text: "愉快地", type: "distractor", hint: "⚠️「愉快地」是副詞，此處需要形容詞！" },
+                            { text: "方法", type: "distractor", hint: "⚠️ 用譬喻名詞「良藥」更能凸顯治癒心靈的意境！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（讓環境更整潔的妙方）",
+                        slots: [
+                            { role: "fixed", text: "讓" },
+                            { role: "slot", index: 0, placeholder: "名詞(對象)", expected: "環境" },
+                            { role: "fixed", text: "更" },
+                            { role: "slot", index: 1, placeholder: "形容詞", expected: "整潔" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 2, placeholder: "名詞(事物)", expected: "妙方" }
+                        ],
+                        cards: [
+                            { text: "環境", type: "correct", hint: "" },
+                            { text: "整潔", type: "correct", hint: "" },
+                            { text: "妙方", type: "correct", hint: "" },
+                            { text: "打掃", type: "distractor", hint: "⚠️「打掃」是動作動詞，不是名詞受詞！" },
+                            { text: "乾淨的", type: "distractor", hint: "⚠️ 卡片重複「的」，破壞了句子結構！" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 8,
+                badge: "結構八",
+                name: "得到＋名詞＋的名詞",
+                formula: "得到 ＋ 名詞(事物) ＋ 的 ＋ 名詞(什麼)",
+                example: "得到 綠蔭 的 庇護",
+                questions: [
+                    {
+                        title: "第 1 題：課本例句（得到綠蔭的庇護）",
+                        slots: [
+                            { role: "fixed", text: "得到" },
+                            { role: "slot", index: 0, placeholder: "名詞(事物)", expected: "綠蔭" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 1, placeholder: "名詞(什麼)", expected: "庇護" }
+                        ],
+                        cards: [
+                            { text: "綠蔭", type: "correct", hint: "" },
+                            { text: "庇護", type: "correct", hint: "" },
+                            { text: "樹木", type: "distractor", hint: "⚠️ 課文使用「綠蔭」表現遮蔽清涼的意境！" },
+                            { text: "保護著", type: "distractor", hint: "⚠️「保護著」是動詞，最後一格需要名詞！" }
+                        ]
+                    },
+                    {
+                        title: "第 2 題：課堂練習 1（得到展覽的資訊）",
+                        slots: [
+                            { role: "fixed", text: "得到" },
+                            { role: "slot", index: 0, placeholder: "名詞(事物)", expected: "展覽" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 1, placeholder: "名詞(什麼)", expected: "資訊" }
+                        ],
+                        cards: [
+                            { text: "展覽", type: "correct", hint: "" },
+                            { text: "資訊", type: "correct", hint: "" },
+                            { text: "參觀", type: "distractor", hint: "⚠️「參觀」是動作，需要名詞對象！" },
+                            { text: "消息的", type: "distractor", hint: "⚠️ 卡片重複了「的」！" }
+                        ]
+                    },
+                    {
+                        title: "第 3 題：課堂練習 2（得到朋友的讚賞）",
+                        slots: [
+                            { role: "fixed", text: "得到" },
+                            { role: "slot", index: 0, placeholder: "名詞(人物/對象)", expected: "朋友" },
+                            { role: "fixed", text: "的" },
+                            { role: "slot", index: 1, placeholder: "名詞(什麼)", expected: "讚賞" }
+                        ],
+                        cards: [
+                            { text: "朋友", type: "correct", hint: "" },
+                            { text: "讚賞", type: "correct", hint: "" },
+                            { text: "同學的", type: "distractor", hint: "⚠️ 勿選帶有「的」字的干擾卡！" },
+                            { text: "誇獎著", type: "distractor", hint: "⚠️ 勿用帶「著」的動詞，最後一格為名詞！" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        /* 短語練習遊戲狀態 */
+        let currentLevelIdx = 0;
+        let currentSubQuestionIdx = 0;
+        let phraseScore = 0;
+        let selectedSlots = {}; // { slotIndex: cardText }
+
+        const levelNavBtns = document.getElementById('levelNavBtns');
+        const levelBadge = document.getElementById('levelBadge');
+        const levelTitle = document.getElementById('levelTitle');
+        const structureFormula = document.getElementById('structureFormula');
+        const exampleSentence = document.getElementById('exampleSentence');
+        const subQuestionStars = document.getElementById('subQuestionStars');
+        const subQuestionText = document.getElementById('subQuestionText');
+        const scoreText = document.getElementById('scoreText');
+        const dropZoneContainer = document.getElementById('dropZoneContainer');
+        const cardPool = document.getElementById('cardPool');
+        const messageBanner = document.getElementById('messageBanner');
+        const messageText = document.getElementById('messageText');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const clearModal = document.getElementById('clearModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMsg = document.getElementById('modalMsg');
+        const modalNextLevelBtn = document.getElementById('modalNextLevelBtn');
+
+        function initPhraseNav() {
+            levelNavBtns.innerHTML = '';
+            phraseLevels.forEach((lvl, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1.5 rounded-xl font-black text-xs md:text-sm transition shadow-sm border-2 ${
+                    idx === currentLevelIdx
+                    ? 'bg-purple-500 text-white border-purple-400 scale-105'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'
+                }`;
+                btn.textContent = `${lvl.badge}：${lvl.name}`;
+                btn.addEventListener('click', () => {
+                    currentLevelIdx = idx;
+                    currentSubQuestionIdx = 0;
+                    initPhraseNav();
+                    loadPhraseLevel();
+                });
+                levelNavBtns.appendChild(btn);
+            });
+        }
+
+        function updatePhraseStars() {
+            const stars = subQuestionStars.querySelectorAll('.sub-star');
+            stars.forEach((star, idx) => {
+                if (idx < currentSubQuestionIdx) {
+                    star.className = 'sub-star text-amber-400 text-lg scale-110';
+                } else if (idx === currentSubQuestionIdx) {
+                    star.className = 'sub-star text-purple-600 text-lg animate-pulse';
+                } else {
+                    star.className = 'sub-star text-slate-300 text-lg';
+                }
+            });
+            subQuestionText.textContent = `第 ${currentSubQuestionIdx + 1}/3 題`;
+        }
+
+        function loadPhraseLevel() {
+            initPhraseNav();
+            updatePhraseStars();
+
+            const lvl = phraseLevels[currentLevelIdx];
+            const q = lvl.questions[currentSubQuestionIdx];
+
+            levelBadge.textContent = lvl.badge;
+            levelTitle.textContent = `【${lvl.name}】 - ${q.title}`;
+            structureFormula.textContent = lvl.formula;
+            exampleSentence.textContent = lvl.example;
+
+            selectedSlots = {};
+            messageBanner.classList.add('hidden');
+            checkBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+
+            renderDropZones(q);
+            renderCardPool(q);
+        }
+
+        function renderDropZones(question) {
+            dropZoneContainer.innerHTML = '';
+
+            question.slots.forEach((item) => {
+                if (item.role === 'fixed') {
+                    const fixedBox = document.createElement('div');
+                    fixedBox.className = "flex items-center justify-center px-4 py-3 bg-pink-100/90 border-2 border-pink-300 rounded-2xl text-pink-900 font-black text-xl shadow-sm min-w-[50px] text-center";
+                    fixedBox.textContent = item.text;
+                    dropZoneContainer.appendChild(fixedBox);
+                } else {
+                    const dropZone = document.createElement('div');
+                    dropZone.className = "drop-zone flex-1 min-w-[120px] max-w-[200px] border-3 border-dashed border-purple-300 rounded-2xl p-3 bg-purple-50/60 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer hover:border-purple-400";
+                    dropZone.dataset.slotIndex = item.index;
+
+                    dropZone.innerHTML = `
+                        <span class="text-xs font-bold text-purple-400">${item.placeholder}</span>
+                        <div class="slot-content font-black text-lg text-purple-900 min-h-[30px] flex items-center justify-center">
+                            （點擊或拖放）
+                        </div>
+                    `;
+
+                    // Drag & Drop 事件
+                    dropZone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.add('drag-over');
+                    });
+                    dropZone.addEventListener('dragleave', () => {
+                        dropZone.classList.remove('drag-over');
+                    });
+                    dropZone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.remove('drag-over');
+                        const cardText = e.dataTransfer.getData('text/plain');
+                        if (cardText) {
+                            placeCardInSlot(item.index, cardText);
+                        }
+                    });
+
+                    // 點擊已填入卡片可退回卡片池
+                    dropZone.addEventListener('click', () => {
+                        if (selectedSlots[item.index]) {
+                            delete selectedSlots[item.index];
+                            updateDropZoneDisplay(item.index, item.placeholder);
+                            updateCardPoolVisual();
+                        }
+                    });
+
+                    dropZoneContainer.appendChild(dropZone);
+                }
+            });
+        }
+
+        function renderCardPool(question) {
+            cardPool.innerHTML = '';
+            const pastelBgClasses = [
+                'bg-pink-100 hover:bg-pink-200 border-pink-300 text-pink-900',
+                'bg-blue-100 hover:bg-blue-200 border-blue-300 text-blue-900',
+                'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900',
+                'bg-emerald-100 hover:bg-emerald-200 border-emerald-300 text-emerald-900',
+                'bg-purple-100 hover:bg-purple-200 border-purple-300 text-purple-900'
+            ];
+
+            const shuffledCards = [...question.cards].sort(() => Math.random() - 0.5);
+
+            shuffledCards.forEach((c, idx) => {
+                const card = document.createElement('div');
+                card.draggable = true;
+                card.dataset.text = c.text;
+                card.className = `draggable-card px-5 py-2.5 rounded-2xl border-2 font-black text-lg shadow-sm ${pastelBgClasses[idx % pastelBgClasses.length]}`;
+                card.textContent = c.text;
+
+                card.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', c.text);
+                    card.classList.add('dragging');
+                });
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                });
+
+                // 點擊自動填入第一個空白格子
+                card.addEventListener('click', () => {
+                    const lvl = phraseLevels[currentLevelIdx];
+                    const q = lvl.questions[currentSubQuestionIdx];
+                    const emptySlot = q.slots.find(s => s.role === 'slot' && !selectedSlots[s.index]);
+                    if (emptySlot) {
+                        placeCardInSlot(emptySlot.index, c.text);
+                    }
+                });
+
+                cardPool.appendChild(card);
+            });
+        }
+
+        function placeCardInSlot(slotIdx, text) {
+            // 如果該卡片已經在其他格子，先移除
+            Object.keys(selectedSlots).forEach(k => {
+                if (selectedSlots[k] === text) delete selectedSlots[k];
+            });
+
+            selectedSlots[slotIdx] = text;
+            const lvl = phraseLevels[currentLevelIdx];
+            const q = lvl.questions[currentSubQuestionIdx];
+            const slotConfig = q.slots.find(s => s.role === 'slot' && s.index === slotIdx);
+
+            updateDropZoneDisplay(slotIdx, slotConfig ? slotConfig.placeholder : "");
+            updateCardPoolVisual();
+        }
+
+        function updateDropZoneDisplay(slotIdx, placeholder) {
+            const dropZones = dropZoneContainer.querySelectorAll('.drop-zone');
+            dropZones.forEach(dz => {
+                if (parseInt(dz.dataset.slotIndex, 10) === slotIdx) {
+                    const content = dz.querySelector('.slot-content');
+                    if (selectedSlots[slotIdx]) {
+                        content.textContent = selectedSlots[slotIdx];
+                        content.className = "slot-content font-black text-xl text-purple-900 px-3 py-1 bg-white rounded-xl shadow-inner pop-animation";
+                    } else {
+                        content.textContent = "（點擊或拖放）";
+                        content.className = "slot-content font-black text-base text-purple-300 min-h-[30px] flex items-center justify-center";
+                    }
+                }
+            });
+        }
+
+        function updateCardPoolVisual() {
+            const cards = cardPool.querySelectorAll('.draggable-card');
+            const usedTexts = Object.values(selectedSlots);
+            cards.forEach(c => {
+                if (usedTexts.includes(c.dataset.text)) {
+                    c.classList.add('opacity-30', 'scale-90', 'pointer-events-none');
+                } else {
+                    c.classList.remove('opacity-30', 'scale-90', 'pointer-events-none');
+                }
+            });
+        }
+
+        // 驗證短語組合
+        checkBtn.addEventListener('click', () => {
+            const lvl = phraseLevels[currentLevelIdx];
+            const q = lvl.questions[currentSubQuestionIdx];
+            const slotConfigs = q.slots.filter(s => s.role === 'slot');
+
+            // 檢查是否所有格子都已填滿
+            for (let s of slotConfigs) {
+                if (!selectedSlots[s.index]) {
+                    showPhraseMessage(`⚠️ 還有空格尚未填入卡片喔！請將所有格子填滿再驗證。`, "error");
+                    return;
+                }
+            }
+
+            // 逐格比對
+            let isAllCorrect = true;
+            let errorFeedback = [];
+
+            slotConfigs.forEach(s => {
+                const filledText = selectedSlots[s.index];
+                if (filledText !== s.expected) {
+                    isAllCorrect = false;
+                    const cardInfo = q.cards.find(c => c.text === filledText);
+                    if (cardInfo && cardInfo.hint) {
+                        errorFeedback.push(cardInfo.hint);
+                    } else {
+                        errorFeedback.push(`⚠️「${filledText}」放錯位置囉！請參照結構公式重新調整。`);
+                    }
+                }
+            });
+
+            if (isAllCorrect) {
+                phraseScore += 10;
+                scoreText.textContent = phraseScore;
+
+                confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    origin: { y: 0.6 }
+                });
+
+                showPhraseMessage(`🎉 太棒了！完全答對！詞性搭配完全吻合標準結構！`, "success");
+
+                checkBtn.classList.add('hidden');
+                if (currentSubQuestionIdx < 2) {
+                    nextBtn.innerHTML = `進入第 ${currentSubQuestionIdx + 2} 題 <i class="fa-solid fa-arrow-right"></i>`;
+                    nextBtn.classList.remove('hidden');
+                } else {
+                    setTimeout(() => {
+                        modalTitle.textContent = `🎉 恭喜完成【${lvl.name}】3 道題目！`;
+                        modalMsg.textContent = `太強了！你已經完全掌握此單元短語結構的詞性搭配與句型規則！`;
+                        modalNextLevelBtn.textContent = "解鎖並進入下一關 🚀";
+                        clearModal.classList.remove('hidden');
+                        modalNextLevelBtn.onclick = () => {
+                            clearModal.classList.add('hidden');
+                            currentSubQuestionIdx = 0;
+                            if (currentLevelIdx < phraseLevels.length - 1) {
+                                currentLevelIdx++;
+                            } else {
+                                currentLevelIdx = 0;
+                            }
+                            initPhraseNav();
+                            loadPhraseLevel();
+                        };
+                    }, 650);
+                }
+            } else {
+                showPhraseMessage(errorFeedback[0] || "⚠️ 詞性搭配有誤，請再仔細看一下結構公式喔！", "error");
+                dropZoneContainer.classList.add('shake-animation');
+                setTimeout(() => dropZoneContainer.classList.remove('shake-animation'), 450);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSubQuestionIdx < 2) {
+                currentSubQuestionIdx++;
+                loadPhraseLevel();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            selectedSlots = {};
+            const lvl = phraseLevels[currentLevelIdx];
+            const q = lvl.questions[currentSubQuestionIdx];
+            renderDropZones(q);
+            renderCardPool(q);
+            messageBanner.classList.add('hidden');
+            checkBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+        });
+
+        function showPhraseMessage(msg, type) {
+            messageText.textContent = msg;
+            messageBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+
+            if (type === "success") {
+                messageBanner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            } else {
+                messageBanner.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+            }
+        }
+
+        /* 啟動網頁初始化 */
+        initPhraseNav();
+        loadPhraseLevel();
         initIdiomNav();
     </script>
 </body>
