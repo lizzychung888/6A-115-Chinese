@@ -80,112 +80,238 @@
 </head>
 <body class="flex flex-col items-center justify-between p-4 md:p-8">
 
-    <!-- 頂部頁首與關卡選單 -->
+    <!-- 頂部頁首與全域模式切換 -->
     <header class="w-full max-w-6xl text-center mb-4">
         <div class="inline-flex items-center gap-2 bg-pink-100/90 text-pink-700 border border-pink-200 px-5 py-1.5 rounded-full font-bold text-base mb-2 shadow-sm">
-            <i class="fa-solid fa-graduation-cap text-pink-500"></i> 國小六年級 國語 1-6 課短語結構大解密
+            <i class="fa-solid fa-graduation-cap text-pink-500"></i> 國小六年級 國語 1-6 課特訓大樂園
         </div>
-        <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight mb-2">
-            課本標準短語拼圖特訓網
+        <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight mb-3">
+            國語短語 ✕ 成語互動挑戰特訓網
         </h1>
-        <p class="text-slate-600 text-base md:text-lg font-bold mb-4">
-            觀察結構剖析，將正確詞性的馬卡龍卡片拖入格子中！
-        </p>
+        
+        <!-- 大功能切換選單 (Tab 模式) -->
+        <div class="flex justify-center gap-3 mb-4">
+            <button id="tabPhrase" class="tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105 flex items-center gap-2">
+                <i class="fa-solid fa-shapes"></i> 🧩 短語結構拼圖
+            </button>
+            <button id="tabIdiom" class="tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 flex items-center gap-2">
+                <i class="fa-solid fa-book-sparkles"></i> 📜 成語情境挑戰
+            </button>
+            <button id="tabDict" class="tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-sky-50 flex items-center gap-2">
+                <i class="fa-solid fa-book-open-reader"></i> 📖 成語資料庫查詢
+            </button>
+        </div>
 
-        <!-- 8大關卡快速切換按鈕區 -->
-        <div class="flex flex-wrap justify-center gap-2 max-w-5xl mx-auto" id="levelNavBtns">
-            <!-- 關卡按鈕由 JS 動態生成 -->
+        <!-- 短語關卡按鈕區 (短語模式顯示) -->
+        <div id="phraseNavWrapper">
+            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
+                觀察結構剖析，將正確詞性的馬卡龍卡片拖入格子中！
+            </p>
+            <div class="flex flex-wrap justify-center gap-2 max-w-5xl mx-auto" id="levelNavBtns">
+                <!-- 關卡按鈕由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 成語課次切換區 (成語模式顯示) -->
+        <div id="idiomNavWrapper" class="hidden">
+            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
+                請根據情境文意，挑選最恰當的成語填入括號中：
+            </p>
+            <div class="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto" id="idiomLessonNavBtns">
+                <!-- 由 JS 動態生成第 1-6 課與全課總複習按鈕 -->
+            </div>
         </div>
     </header>
 
-    <!-- 主遊戲區 -->
+    <!-- 主遊戲區 (包含短語區、成語遊戲區與成語辭典區) -->
     <main class="w-full max-w-5xl flex flex-col gap-5">
 
-        <!-- 關卡標題與結構剖析 Banner -->
-        <div class="bg-white/90 backdrop-blur border-3 border-purple-200 p-5 rounded-3xl shadow-md">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-3">
-                <div class="flex items-center gap-3">
-                    <span id="levelBadge" class="bg-purple-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
-                        關卡 1
-                    </span>
-                    <h2 id="levelTitle" class="text-xl font-black text-slate-800">
-                        【短語類型】
-                    </h2>
-                </div>
-                <div class="flex items-center gap-4">
-                    <!-- 每關 3 題進度指示 -->
-                    <div class="flex items-center gap-2 bg-purple-50 px-3.5 py-1.5 rounded-2xl border border-purple-200">
-                        <span class="text-xs font-black text-purple-700">關卡進度</span>
-                        <div id="subQuestionStars" class="flex gap-1.5">
-                            <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                            <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                            <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                        </div>
-                        <span id="subQuestionText" class="text-xs font-black text-purple-900 ml-1">第 1/3 題</span>
+        <!-- ==================== 1. 短語遊戲區域 ==================== -->
+        <div id="phraseSection" class="flex flex-col gap-5">
+            <!-- 關卡標題與結構剖析 Banner -->
+            <div class="bg-white/90 backdrop-blur border-3 border-purple-200 p-5 rounded-3xl shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-3">
+                    <div class="flex items-center gap-3">
+                        <span id="levelBadge" class="bg-purple-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                            關卡 1
+                        </span>
+                        <h2 id="levelTitle" class="text-xl font-black text-slate-800">
+                            【短語類型】
+                        </h2>
                     </div>
+                    <div class="flex items-center gap-4">
+                        <!-- 每關 3 題進度指示 -->
+                        <div class="flex items-center gap-2 bg-purple-50 px-3.5 py-1.5 rounded-2xl border border-purple-200">
+                            <span class="text-xs font-black text-purple-700">關卡進度</span>
+                            <div id="subQuestionStars" class="flex gap-1.5">
+                                <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                                <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                                <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                            </div>
+                            <span id="subQuestionText" class="text-xs font-black text-purple-900 ml-1">第 1/3 題</span>
+                        </div>
 
-                    <span class="text-slate-500 font-bold text-sm">得分：<strong id="scoreText" class="text-2xl text-amber-500 font-black">0</strong></span>
-                    <button id="resetBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-3.5 py-1.5 rounded-xl transition border border-slate-200 text-sm shadow-sm">
-                        <i class="fa-solid fa-rotate-left mr-1"></i> 重練本題
+                        <span class="text-slate-500 font-bold text-sm">短語得分：<strong id="scoreText" class="text-2xl text-amber-500 font-black">0</strong></span>
+                        <button id="resetBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-3.5 py-1.5 rounded-xl transition border border-slate-200 text-sm shadow-sm">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> 重練本題
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 結構公式剖析與例句展示 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl">
+                        <span class="text-xs font-black text-purple-600 block mb-1">📐 結構剖析：</span>
+                        <p id="structureFormula" class="text-base font-black text-purple-950">
+                            動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)
+                        </p>
+                    </div>
+                    <div class="bg-pink-50 border border-pink-100 p-3.5 rounded-2xl">
+                        <span class="text-xs font-black text-pink-600 block mb-1">💡 課本示範例句：</span>
+                        <p id="exampleSentence" class="text-base font-black text-pink-950">
+                            摘 一片 雪白 的 雲
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 放置區 (Drop Zones) -->
+            <div class="bg-white/95 border-4 border-pink-100 p-6 rounded-3xl shadow-xl backdrop-blur">
+                <h3 class="text-slate-700 font-black text-base mb-4 text-center">
+                    👇 請依據結構剖析，將卡片填入正確位置：
+                </h3>
+
+                <div id="dropZoneContainer" class="flex flex-wrap md:flex-nowrap justify-center items-center gap-2">
+                    <!-- Drop zones dynamic DOM -->
+                </div>
+
+                <!-- 錯誤提示與智慧指導欄 -->
+                <div id="messageBanner" class="mt-5 hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
+                    <span id="messageText"></span>
+                </div>
+            </div>
+
+            <!-- 卡片池 (Card Pool) -->
+            <div class="bg-white/80 border-2 border-slate-200 p-5 rounded-3xl shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-slate-700 font-black text-base flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-pink-400"></i> 馬卡龍卡片池（請點擊或拖拽至目標區）：
+                    </h3>
+                    <span class="text-xs font-bold text-slate-400">包含誘答與陷阱卡喔！</span>
+                </div>
+
+                <div id="cardPool" class="flex flex-wrap justify-center gap-3 min-h-[90px] p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
+                    <!-- Cards rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- 驗證按鈕 -->
+            <div class="flex justify-center gap-4">
+                <button id="checkBtn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> 驗證組合
+                </button>
+                <button id="nextBtn" class="hidden bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 2. 成語情境挑戰區域 ==================== -->
+        <div id="idiomSection" class="hidden flex flex-col gap-5">
+            <!-- 成語關卡 Banner -->
+            <div class="bg-white/95 border-3 border-emerald-200 p-5 rounded-3xl shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-3">
+                        <span id="idiomLessonBadge" class="bg-emerald-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                            第 1 課
+                        </span>
+                        <h2 id="idiomQuestionTitle" class="text-xl font-black text-slate-800">
+                            成語情境精準選詞
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2 bg-emerald-50 px-3.5 py-1.5 rounded-2xl border border-emerald-200">
+                            <span class="text-xs font-black text-emerald-700">課次進度</span>
+                            <div id="idiomProgressStars" class="flex gap-1.5">
+                                <span class="i-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                                <span class="i-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                                <span class="i-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
+                            </div>
+                            <span id="idiomProgressText" class="text-xs font-black text-emerald-900 ml-1">第 1/3 題</span>
+                        </div>
+                        <span class="text-slate-500 font-bold text-sm">成語得分：<strong id="idiomScoreText" class="text-2xl text-emerald-600 font-black">0</strong></span>
+                    </div>
+                </div>
+                <div class="bg-emerald-50/80 border border-emerald-100 p-3.5 rounded-2xl flex items-center justify-between">
+                    <span class="text-sm font-bold text-emerald-800">🎯 任務提示：閱讀句子情境，點選或拖曳最恰當的成語卡片填入括號中！</span>
+                    <button id="idiomHintBtn" class="text-xs bg-white text-emerald-700 border border-emerald-300 px-3 py-1 rounded-xl font-bold hover:bg-emerald-100">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> 查看成語錦囊
                     </button>
                 </div>
             </div>
 
-            <!-- 結構公式剖析與例句展示 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl">
-                    <span class="text-xs font-black text-purple-600 block mb-1">📐 結構剖析：</span>
-                    <p id="structureFormula" class="text-base font-black text-purple-950">
-                        動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)
-                    </p>
+            <!-- 成語填空放置板 -->
+            <div class="bg-white/95 border-4 border-emerald-100 p-7 rounded-3xl shadow-xl backdrop-blur">
+                <div class="text-xs font-black text-emerald-600 tracking-wider mb-2 text-center uppercase">Sentence Context</div>
+                <div id="idiomSentenceBox" class="text-xl md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
+                    <!-- 動態渲染帶有括號槽位的句子 -->
                 </div>
-                <div class="bg-pink-50 border border-pink-100 p-3.5 rounded-2xl">
-                    <span class="text-xs font-black text-pink-600 block mb-1">💡 課本示範例句：</span>
-                    <p id="exampleSentence" class="text-base font-black text-pink-950">
-                        摘 一片 雪白 的 雲
-                    </p>
+
+                <div id="idiomMessageBanner" class="hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
+                    <span id="idiomMessageText"></span>
                 </div>
             </div>
-        </div>
 
-        <!-- 放置區 (Drop Zones) -->
-        <div class="bg-white/95 border-4 border-pink-100 p-6 rounded-3xl shadow-xl backdrop-blur">
-            <h3 class="text-slate-700 font-black text-base mb-4 text-center">
-                👇 請依據結構剖析，將卡片填入正確位置：
-            </h3>
-
-            <div id="dropZoneContainer" class="flex flex-wrap md:flex-nowrap justify-center items-center gap-2">
-                <!-- Drop zones dynamic DOM -->
-            </div>
-
-            <!-- 錯誤提示與智慧指導欄 -->
-            <div id="messageBanner" class="mt-5 hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
-                <span id="messageText"></span>
-            </div>
-        </div>
-
-        <!-- 卡片池 (Card Pool) -->
-        <div class="bg-white/80 border-2 border-slate-200 p-5 rounded-3xl shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-slate-700 font-black text-base flex items-center gap-2">
-                    <i class="fa-solid fa-shapes text-pink-400"></i> 馬卡龍卡片池（請點擊或拖拽至目標區）：
+            <!-- 成語四選一卡片池 -->
+            <div class="bg-white/90 border-2 border-emerald-200 p-5 rounded-3xl shadow-sm">
+                <h3 class="text-slate-700 font-black text-base mb-3 text-center">
+                    👇 請點選最符合情境的成語卡片：
                 </h3>
-                <span class="text-xs font-bold text-slate-400">包含誘答與陷阱卡喔！</span>
+                <div id="idiomOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- 動態生成 4 個馬卡龍成語選項按鈕 -->
+                </div>
             </div>
 
-            <div id="cardPool" class="flex flex-wrap justify-center gap-3 min-h-[90px] p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
-                <!-- Cards rendered dynamically -->
+            <div class="flex justify-center gap-4">
+                <button id="idiomNextBtn" class="hidden bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
         </div>
 
-        <!-- 驗證按鈕 -->
-        <div class="flex justify-center gap-4">
-            <button id="checkBtn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                <i class="fa-solid fa-circle-check"></i> 驗證組合
-            </button>
-            <button id="nextBtn" class="hidden bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                進入下一題 <i class="fa-solid fa-arrow-right"></i>
-            </button>
+        <!-- ==================== 3. 成語資料庫查詢字典 ==================== -->
+        <div id="dictSection" class="hidden flex flex-col gap-4">
+            <div class="bg-white/95 border-3 border-sky-200 p-5 rounded-3xl shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-sky-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                            成語檢索
+                        </span>
+                        <h2 class="text-xl font-black text-slate-800">
+                            1-6 課成語資料庫總表（共 38 組）
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <input id="dictSearchInput" type="text" placeholder="搜尋成語名稱、解釋、近反義詞..." class="w-full md:w-72 px-4 py-2 rounded-xl border-2 border-sky-200 focus:outline-none focus:border-sky-400 text-sm font-bold">
+                    </div>
+                </div>
+
+                <!-- 課次快速篩選濾鏡 -->
+                <div class="flex flex-wrap gap-2 mt-4" id="dictFilterBtns">
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-sky-500 text-white" data-lesson="all">全部成語 (38)</button>
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="1">第 1 課 (8)</button>
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="2">第 2 課 (7)</button>
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="3">第 3 課 (7)</button>
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="4">第 4 課 (6)</button>
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="5">第 5 課 (6)</button>
+                    <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="6">第 6 課 (6)</button>
+                </div>
+            </div>
+
+            <!-- 成語卡片清單展示區 -->
+            <div id="dictCardList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 由 JS 動態注入 38 組成語資料 -->
+            </div>
         </div>
 
     </main>
@@ -196,7 +322,7 @@
             <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-4xl mb-4 shadow-inner">
                 <i class="fa-solid fa-crown"></i>
             </div>
-            <h3 class="text-2xl font-black text-slate-800 mb-2">🎉 恭喜完成本關 3 道題目！</h3>
+            <h3 id="modalTitle" class="text-2xl font-black text-slate-800 mb-2">🎉 恭喜完成本關 3 道題目！</h3>
             <p id="modalMsg" class="text-slate-600 font-bold mb-6">
                 太厲害了！你已經完全掌握此結構的詞性搭配！
             </p>
@@ -207,749 +333,520 @@
     </div>
 
     <footer class="mt-6 text-center text-slate-400 text-xs font-bold">
-        國小六年級 國語短語結構專題特訓 ｜ 馬卡龍色系教學互動 App
+        國小六年級 國語短語結構 ✕ 1-6課成語資料庫 ｜ 馬卡龍色系全功能教學互動特訓 App
     </footer>
 
     <script>
-        // 9 大關卡資料庫：每關固定包含 3 道實戰題
-        const gameLevels = [
+        /* ========================================================
+           1. 成語完整資料庫 (38 組完整收錄)
+           ======================================================== */
+        const idiomDatabase = [
+            // 第一課
+            { lesson: 1, idiom: "搖頭晃腦", meaning: "形容自以為是或自得其樂。", synonyms: "自得其樂、得意洋洋", antonyms: "正襟危坐、道貌岸然", example: "他喜歡一個人隨著音樂搖頭晃腦，擺動身體。" },
+            { lesson: 1, idiom: "班門弄斧", meaning: "比喻在行家面前賣弄本事，不自量力。", synonyms: "不自量力、布鼓雷門", antonyms: "虛懷若谷、深藏若虛", example: "今天我竟然在專家面前大談科學，真是班門弄斧。" },
+            { lesson: 1, idiom: "情真意摯", meaning: "情感真切、心意誠摯。", synonyms: "真情實意、赤子之心", antonyms: "虛情假意、言不由衷", example: "他情真意摯的訴說自己辛苦創業的過程，讓臺下的觀眾露出敬佩的眼神。" },
+            { lesson: 1, idiom: "不翼而飛", meaning: "比喻物品無故遺失。", synonyms: "不翼而馳、銷聲匿跡", antonyms: "原封不動、失而復得", example: "美術館的名畫竟然不翼而飛，警察趕緊調閱監視器尋找小偷。" },
+            { lesson: 1, idiom: "含血噴人", meaning: "比喻捏造事實，誣賴他人。", synonyms: "血口噴人、栽贓嫁禍", antonyms: "實事求是、持平之論", example: "我根本沒動你的電腦，有人可以作證，請不要含血噴人！" },
+            { lesson: 1, idiom: "儲精蓄銳", meaning: "保養精神，積蓄力量。", synonyms: "養精蓄銳、厲兵秣馬", antonyms: "精疲力竭、疲憊不堪", example: "他這幾個月來儲精蓄銳，只希望在這次比賽中能打敗對手。" },
+            { lesson: 1, idiom: "勉為其難", meaning: "雖然在事實上有所困難，但仍努力去做。", synonyms: "力不能及、勉力為之", antonyms: "游刃有餘、從容不迫", example: "他為了不讓家人失望，勉為其難的接受了這份工作。" },
+            { lesson: 1, idiom: "赴湯蹈火", meaning: "比喻奮不顧身，不避艱險。", synonyms: "奮不顧身、出生入死", antonyms: "貪生怕死、畏首畏尾", example: "只要國家需要，即使赴湯蹈火，我們也在所不辭。" },
+
+            // 第二課
+            { lesson: 2, idiom: "根深蒂固", meaning: "比喻根基堅固，不可動搖。", synonyms: "堅如磐石、確不可拔", antonyms: "搖搖欲墜、不堪一擊", example: "雖然科技日新月異，但是迷信在某些人的思想中，仍然根深蒂固。" },
+            { lesson: 2, idiom: "執迷不悟", meaning: "堅持錯誤的觀念而不醒悟。", synonyms: "冥頑不靈、頑固不化", antonyms: "懸崖勒馬、苦海無邊", example: "如果你再執迷不悟，將會為此付出龐大的代價。" },
+            { lesson: 2, idiom: "百口莫辯", meaning: "比喻冤屈無法申訴辯白。", synonyms: "有口難辯、無可分辯", antonyms: "辨析分明、理直氣壯", example: "對方誤解已深，真叫人百口莫辯。" },
+            { lesson: 2, idiom: "民胞物與", meaning: "視人民如同胞，視動物如同類。比喻博愛。", synonyms: "悲天憫人、博愛仁慈", antonyms: "草菅人命、冷酷無情", example: "官員應有民胞物與的精神，才能造福社會。" },
+            { lesson: 2, idiom: "慘不忍睹", meaning: "形容情狀悽慘，令人不忍目睹。", synonyms: "慘絕人寰、慘無人道", antonyms: "賞心悅目、美不勝收", example: "戰爭所帶來的種種殘酷景象，令人慘不忍睹。" },
+            { lesson: 2, idiom: "憤世嫉俗", meaning: "形容對腐敗的社會現狀及庸俗世態的痛恨。", synonyms: "痛恨世俗、疾惡如仇", antonyms: "隨波逐流、同流合汙", example: "王先生因為長期失業，漸漸變得憤世嫉俗。" },
+            { lesson: 2, idiom: "慷慨解囊", meaning: "指輕財仗義，毫不吝嗇的捐助錢財給人。", synonyms: "仗義疏財、樂善好施", antonyms: "一毛不拔、愛財如命", example: "由於他慷慨解囊，幫那個素不相識的老太太繳了房租，她才不必露宿街頭。" },
+
+            // 第三課
+            { lesson: 3, idiom: "苦口婆心", meaning: "形容以懇切真摯的態度，竭力勸告他人。", synonyms: "語重心長、諄諄告誡", antonyms: "冷言冷語、惡語相向", example: "老師苦口婆心的勸導犯規的學生，希望能導正他們的行為。" },
+            { lesson: 3, idiom: "家徒四壁", meaning: "形容家境極為貧困。", synonyms: "一貧如洗、囊空如洗", antonyms: "豐衣足食、家給人足", example: "雖然家徒四壁，但他卻能奮發上進，實在令人敬佩！" },
+            { lesson: 3, idiom: "千錘百鍊", meaning: "比喻文章多次潤飾，或人生歷經磨鍊。", synonyms: "淬鍊歷練、精益求精", antonyms: "粗製濫造、未經磨礪", example: "他經過各種挑戰的千錘百鍊後，處世更圓融了。" },
+            { lesson: 3, idiom: "率由舊章", meaning: "指一切遵循舊規。", synonyms: "蕭規曹隨、循規蹈矩", antonyms: "改弦易轍、革故鼎新", example: "你才剛到，不妨先率由舊章的做做看，有不妥處再慢慢修正。" },
+            { lesson: 3, idiom: "心不在焉", meaning: "比喻心思不集中。", synonyms: "漫不經心、心猿意馬", antonyms: "聚精會神、專心致志", example: "進行化學實驗時，千萬不可心不在焉，否則後果難以想像。" },
+            { lesson: 3, idiom: "人云亦云", meaning: "形容自我沒有獨立的見解，只會盲目跟從他人的意見。", synonyms: "拾人牙慧、隨聲附和", antonyms: "獨樹一幟、獨具慧眼", example: "做事要有主見，不要人云亦云，失去立場。" },
+            { lesson: 3, idiom: "拾人牙慧", meaning: "比喻蹈襲他人的言論或主張。", synonyms: "人云亦云、步人後塵", antonyms: "別出心裁、標新立異", example: "這件作品的設計理念，有拾人牙慧之嫌。" },
+
+            // 第四課
+            { lesson: 4, idiom: "探奧索隱", meaning: "探索玄妙隱微的事理。", synonyms: "窮幽極微、尋幽探微", antonyms: "浮光掠影、淺嘗輒止", example: "宗教與信仰中，通常有許多讓人探奧索隱的事情。" },
+            { lesson: 4, idiom: "迫不及待", meaning: "情況急迫，不能再等。後亦用來形容心情急切，不願等待。", synonyms: "刻不容緩、焦急萬分", antonyms: "從容不迫、按部就班", example: "為了知道比賽結果，大家迫不及待的跑到公布欄前一探究竟。" },
+            { lesson: 4, idiom: "千叮萬囑", meaning: "一再叮嚀囑咐。", synonyms: "千呼萬喚、諄諄告誡", antonyms: "不聞不問、置之不理", example: "儘管出門前媽媽千叮萬囑要哥哥記得帶傘，他竟然還是忘記了。" },
+            { lesson: 4, idiom: "切膚之痛", meaning: "比喻極為深刻難忘的感受與經驗。", synonyms: "痛徹心扉、銘心刻骨", antonyms: "無關痛癢、不痛不癢", example: "去年颱風帶來的災難，全國人民都有切膚之痛，所以今年特別謹慎小心。" },
+            { lesson: 4, idiom: "玉液瓊漿", meaning: "比喻香醇的美酒。", synonyms: "瓊漿玉液、佳釀名酒", antonyms: "淡水微漿、苦口濁酒", example: "大熱天喝冰涼的啤酒，真是玉液瓊漿啊！" },
+            { lesson: 4, idiom: "無可奈何", meaning: "毫無辦法或沒有辦法可想。", synonyms: "迫不得已、無能為力", antonyms: "綽綽有餘、胸有成竹", example: "這件事演變成這種結果，也是無可奈何。" },
+
+            // 第五課
+            { lesson: 5, idiom: "心浮氣躁", meaning: "形容情緒不穩，沉不住氣。", synonyms: "心急氣躁、暴躁不安", antonyms: "心平氣和、從容沈著", example: "他年紀還輕，社會經驗不多，遇事難免心浮氣躁。" },
+            { lesson: 5, idiom: "沙裡淘金", meaning: "從沙礫中淘黃金。亦用於比喻從大量材料中擷取精華。", synonyms: "去蕪存菁、挑精揀肥", antonyms: "買櫝還珠、拾人牙慧", example: "這篇研究報告是作者參考了數百則資料撰寫完成，可謂沙裡淘金，非常值得一看。" },
+            { lesson: 5, idiom: "一手遮天", meaning: "比喻玩弄權術、瞞上欺下的行徑。", synonyms: "瞞天過海、欺上瞞下", antonyms: "正大光明、光明磊落", example: "紙包不住火的，這件事他不要妄想可以一手遮天。" },
+            { lesson: 5, idiom: "腳踏實地", meaning: "比喻做事切實穩健。", synonyms: "實事求是、步步為營", antonyms: "好大喜功、好高騖遠", example: "做事必須腳踏實地，千萬不可耍小聰明。" },
+            { lesson: 5, idiom: "十拿九穩", meaning: "比喻很有把握。", synonyms: "穩操勝券、勝券在握", antonyms: "凶多吉少、毫無把握", example: "照他目前的表現看來，這次比賽的冠軍已是十拿九穩。" },
+            { lesson: 5, idiom: "捉襟見肘", meaning: "形容衣衫破敗，生活貧困。也比喻短缺不足，窮於應付的窘態。", synonyms: "入不敷出、阮囊羞澀", antonyms: "綽綽有餘、綽有餘裕", example: "如果能量入為出，自然可避免每到月底就出現捉襟見肘的窘態。" },
+
+            // 第六課
+            { lesson: 6, idiom: "冷嘲熱諷", meaning: "形容尖酸、刻薄的嘲笑和諷刺。", synonyms: "冷言冷語、譏諷嘲笑", antonyms: "讚譽有加、歌功頌德", example: "老王經常冷嘲熱諷的批評初學者，完全忘了他曾經也一竅不通。" },
+            { lesson: 6, idiom: "李代桃僵", meaning: "比喻以此代彼或代人受過。", synonyms: "偷梁換柱、代人受過", antonyms: "嫁禍於人、自作自受", example: "像你這種偷梁換柱、李代桃僵的做法，遲早會被人識破。" },
+            { lesson: 6, idiom: "侃侃而談", meaning: "形容說話從容不迫的樣子。", synonyms: "口若懸河、從容自若", antonyms: "結結巴巴、吞吞吐吐", example: "只要說到感興趣的話題，他就會侃侃而談，一副樂在其中的樣子。" },
+            { lesson: 6, idiom: "一哄而散", meaning: "人群在吵鬧中各自散去。", synonyms: "風流雲散、煙消雲散", antonyms: "蜂擁而至、濟濟一堂", example: "警察一到，打架滋事的人便一哄而散。" },
+            { lesson: 6, idiom: "判若兩人", meaning: "形容一個人的行為態度，前後截然不同。", synonyms: "截然不同、前後不一", antonyms: "始終如一、一如既往", example: "自從他膝蓋受傷以後，對籃球的態度簡直是判若兩人，已經完全沒有熱忱了。" },
+            { lesson: 6, idiom: "不屑一顧", meaning: "輕視、瞧不起。", synonyms: "嗤之以鼻、不以為意", antonyms: "青睞有加、奉若神明", example: "黃先生為人清廉正直，對於名利的誘惑總是不屑一顧。" }
+        ];
+
+        /* 成語精選情境挑戰題 (每課 3 題關卡) */
+        const idiomLevels = [
             {
-                id: "核心",
-                title: "【核心精選】在……找到……的……",
-                formula: "在 ＋ 名詞(地點/時間＋方位) ＋ 找到 ＋ 名詞(事物/對象) ＋ 的 ＋ 形容詞(特質/特色)",
-                example: "在 樹梢 找到 風 的 淘氣",
-                structure: [
-                    { type: "static", text: "在" },
-                    { type: "slot", label: "地點/範圍", placeholder: "拖入 地點名詞" },
-                    { type: "static", text: "找到" },
-                    { type: "slot", label: "對象/事物", placeholder: "拖入 對象名詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "特質/形容詞", placeholder: "拖入 特質形容詞" }
-                ],
-                subQuestions: [
+                lesson: 1,
+                title: "第 1 課成語特訓",
+                questions: [
                     {
-                        target: ["樹梢上", "風", "淘氣"],
-                        cards: [
-                            { id: "c1_1", text: "樹梢上", hint: "正確！「樹梢上」是有方位介詞的空間地點。" },
-                            { id: "c1_2", text: "風", hint: "正確！「風」是事物對象名詞。" },
-                            { id: "c1_3", text: "淘氣", hint: "正確！「淘氣」是形容特質的詞。" },
-                            { id: "c1_4", text: "吹動", hint: "⚠️「吹動」是動詞，第二格需要名詞對象！" },
-                            { id: "c1_5", text: "樹梢", hint: "⚠️ 加上方位詞「上」寫成「樹梢上」，位置更清晰！" },
-                            { id: "c1_6", text: "淘氣的", hint: "⚠️ 注意右邊已經印有固定的『的』字，不要重複！" }
-                        ]
+                        sentence: "今天我竟然在專家面前大談科學，真是（　　）。",
+                        answer: "班門弄斧",
+                        options: ["班門弄斧", "搖頭晃腦", "含血噴人", "赴湯蹈火"],
+                        hint: "比喻在行家面前賣弄本事，不自量力。"
                     },
                     {
-                        target: ["花叢中", "春天", "可愛"],
-                        cards: [
-                            { id: "c2_1", text: "花叢中", hint: "正確！「花叢中」是有方位介詞的範圍名詞。" },
-                            { id: "c2_2", text: "春天", hint: "正確！「春天」是季節景物名詞。" },
-                            { id: "c2_3", text: "可愛", hint: "正確！「可愛」是描繪特質的形容詞。" },
-                            { id: "c2_4", text: "飛舞", hint: "⚠️「飛舞」是動詞，第二格需要名詞！" },
-                            { id: "c2_5", text: "可愛的", hint: "⚠️ 右邊已經印有『的』字囉，請選『可愛』！" },
-                            { id: "c2_6", text: "花叢", hint: "⚠️ 請選帶有方位介詞的「花叢中」！" }
-                        ]
+                        sentence: "美術館這件鎮館名畫竟然（　　），警方正全力調閱監視器尋找小偷。",
+                        answer: "不翼而飛",
+                        options: ["不翼而飛", "儲精蓄銳", "勉為其難", "情真意摯"],
+                        hint: "比喻物品無故遺失。"
                     },
                     {
-                        target: ["書本裡", "自己", "影子"],
-                        cards: [
-                            { id: "c3_1", text: "書本裡", hint: "正確！「書本裡」是有方位介詞的處所名詞。" },
-                            { id: "c3_2", text: "自己", hint: "正確！「自己」是代表個人的代名詞。" },
-                            { id: "c3_3", text: "影子", hint: "正確！「影子」在此作為抽象特質/意象。" },
-                            { id: "c3_4", text: "閱讀", hint: "⚠️「閱讀」是動詞，第一格需要地點範圍喔！" },
-                            { id: "c3_5", text: "寫照", hint: "⚠️ 如果填「寫照」，接上印好的「的」會變成「寫照的……」句子中斷！" },
-                            { id: "c3_6", text: "自己的", hint: "⚠️ 卡片不要重複包含『的』字！" }
-                        ]
+                        sentence: "只要國家社會需要，即使（　　），我們也在所不辭。",
+                        answer: "赴湯蹈火",
+                        options: ["赴湯蹈火", "含血噴人", "搖頭晃腦", "班門弄斧"],
+                        hint: "比喻奮不顧身，不避艱險。"
                     }
                 ]
             },
             {
-                id: 1,
-                title: "【結構一】量詞修飾句",
-                formula: "動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)",
-                example: "摘 一片 雪白 的 雲",
-                structure: [
-                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
-                    { type: "slot", label: "量詞", placeholder: "拖入 量詞" },
-                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "名詞(事物)", placeholder: "拖入 名詞" }
-                ],
-                subQuestions: [
+                lesson: 2,
+                title: "第 2 課成語特訓",
+                questions: [
                     {
-                        target: ["摘", "一片", "雪白", "雲"],
-                        cards: [
-                            { id: "s1_1", text: "摘", hint: "正確！「摘」是動作動詞。" },
-                            { id: "s1_2", text: "一片", hint: "正確！「一片」是數量詞。" },
-                            { id: "s1_3", text: "雪白", hint: "正確！「雪白」是形容顏色的形容詞。" },
-                            { id: "s1_4", text: "雲", hint: "正確！「雲」是事物名詞。" },
-                            { id: "s1_5", text: "藍天", hint: "⚠️「藍天」不能用「摘一片」來修飾喔！" },
-                            { id: "s1_6", text: "雪白的", hint: "⚠️ 外面已經印有『的』字了！" }
-                        ]
+                        sentence: "雖然經過多年勸說，他依然（　　），不肯承認自己的錯誤觀念。",
+                        answer: "執迷不悟",
+                        options: ["執迷不悟", "根深蒂固", "慷慨解囊", "民胞物與"],
+                        hint: "堅持錯誤的觀念而不醒悟。"
                     },
                     {
-                        target: ["寫", "一頁", "工整", "硬筆字"],
-                        cards: [
-                            { id: "s1_7", text: "寫", hint: "正確！「寫」是動作動詞。" },
-                            { id: "s1_8", text: "一頁", hint: "正確！「一頁」是量詞。" },
-                            { id: "s1_9", text: "工整", hint: "正確！「工整」是形容字跡的形容詞。" },
-                            { id: "s1_10", text: "硬筆字", hint: "正確！「硬筆字」是事物名詞。" },
-                            { id: "s1_11", text: "一顆", hint: "⚠️ 硬筆字是用「一頁」或「一個」喔！" },
-                            { id: "s1_12", text: "苦澀", hint: "「苦澀」是用來形容藥丸或心情，不是形容硬筆字！" }
-                        ]
+                        sentence: "戰爭所帶來的種種殘酷景象，實在令人（　　）。",
+                        answer: "慘不忍睹",
+                        options: ["慘不忍睹", "百口莫辯", "民胞物與", "憤世嫉俗"],
+                        hint: "形容情狀悽慘，令人不忍目睹。"
                     },
                     {
-                        target: ["吃", "一顆", "苦澀", "藥丸"],
-                        cards: [
-                            { id: "s1_13", text: "吃", hint: "正確！「吃」是動作動詞。" },
-                            { id: "s1_14", text: "一顆", hint: "正確！「一顆」是圓形物品的量詞。" },
-                            { id: "s1_15", text: "苦澀", hint: "正確！「苦澀」是描摹味道的形容詞。" },
-                            { id: "s1_16", text: "藥丸", hint: "正確！「藥丸」是事物名詞。" },
-                            { id: "s1_17", text: "看", hint: "藥丸是拿來「吃」的！" },
-                            { id: "s1_18", text: "一片", hint: "藥丸一般用「一顆」，不用「一片」！" }
-                        ]
+                        sentence: "幸好王先生（　　）捐助善款，那位老太太才不必露宿街頭。",
+                        answer: "慷慨解囊",
+                        options: ["慷慨解囊", "根深蒂固", "執迷不悟", "慘不忍睹"],
+                        hint: "指輕財仗義，毫不吝嗇的捐助錢財給人。"
                     }
                 ]
             },
             {
-                id: 2,
-                title: "【結構二】把字轉換句",
-                formula: "把 ＋ 名詞(負面) ＋ 動詞(動作) ＋ 成 ＋ 名詞(正面)",
-                example: "把 幽暗 抹 成 光明",
-                structure: [
-                    { type: "static", text: "把" },
-                    { type: "slot", label: "名詞(負面)", placeholder: "拖入 負面名詞" },
-                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
-                    { type: "static", text: "成" },
-                    { type: "slot", label: "名詞(正面)", placeholder: "拖入 正面名詞" }
-                ],
-                subQuestions: [
+                lesson: 3,
+                title: "第 3 課成語特訓",
+                questions: [
                     {
-                        target: ["幽暗", "抹", "光明"],
-                        cards: [
-                            { id: "s2_1", text: "幽暗", hint: "正確！「幽暗」是負面名詞。" },
-                            { id: "s2_2", text: "抹", hint: "正確！「抹」是動作動詞。" },
-                            { id: "s2_3", text: "光明", hint: "正確！「光明」是正面名詞。" },
-                            { id: "s2_4", text: "抹成", hint: "⚠️ 框外已經有『成』字了，請不要重複！" },
-                            { id: "s2_5", text: "黑暗", hint: "題目例句標準詞是「幽暗」喔！" }
-                        ]
+                        sentence: "雖然（　　），但他卻能奮發上進，最後憑著苦讀考取律師。",
+                        answer: "家徒四壁",
+                        options: ["家徒四壁", "率由舊章", "心不在焉", "人云亦云"],
+                        hint: "形容家境極為貧困。"
                     },
                     {
-                        target: ["缺點", "改", "優點"],
-                        cards: [
-                            { id: "s2_6", text: "缺點", hint: "正確！「缺點」是待修正的負面事物名詞。" },
-                            { id: "s2_7", text: "改", hint: "正確！「改」是改變動作動詞。" },
-                            { id: "s2_8", text: "優點", hint: "正確！「優點」是正面名詞。" },
-                            { id: "s2_9", text: "改成", hint: "⚠️ 注意外面已經印有『成』字了！" },
-                            { id: "s2_10", text: "美好", hint: "最後一格需要名詞「優點」！" }
-                        ]
+                        sentence: "做事要有自己的獨立主張，不要（　　），盲目跟從他人的意見。",
+                        answer: "人云亦云",
+                        options: ["人云亦云", "千錘百鍊", "苦口婆心", "拾人牙慧"],
+                        hint: "形容自我沒有獨立的見解，隨聲附和。"
                     },
                     {
-                        target: ["挫折", "當", "養分"],
-                        cards: [
-                            { id: "s2_11", text: "挫折", hint: "正確！「挫折」是負面困境名詞。" },
-                            { id: "s2_12", text: "當", hint: "正確！「當」是視為的動詞。" },
-                            { id: "s2_13", text: "養分", hint: "正確！「養分」是轉化後的正面收穫名詞。" },
-                            { id: "s2_14", text: "當成", hint: "⚠️ 外面已經有『成』字了！" },
-                            { id: "s2_15", text: "失敗", hint: "搭配「養分」，課本標準答案是「把挫折當成養分」！" }
-                        ]
+                        sentence: "進行化學實驗時，千萬不可（　　），否則後果難以想像。",
+                        answer: "心不在焉",
+                        options: ["心不在焉", "率由舊章", "苦口婆心", "家徒四壁"],
+                        hint: "比喻心思不集中、漫不經心。"
                     }
                 ]
             },
             {
-                id: 3,
-                title: "【結構三】生理/心理感受句",
-                formula: "名詞(事物/部位) ＋ 一 ＋ 形容詞(感受)",
-                example: "心裡 一 涼",
-                structure: [
-                    { type: "slot", label: "名詞(部位/事物)", placeholder: "拖入 名詞" },
-                    { type: "static", text: "一" },
-                    { type: "slot", label: "形容詞(感受)", placeholder: "拖入 感受形容詞" }
-                ],
-                subQuestions: [
+                lesson: 4,
+                title: "第 4 課成語特訓",
+                questions: [
                     {
-                        target: ["心裡", "涼"],
-                        cards: [
-                            { id: "s3_1", text: "心裡", hint: "正確！「心裡」是心理狀態名詞。" },
-                            { id: "s3_2", text: "涼", hint: "正確！「涼」是形容心頭一沉的感受形容詞。" },
-                            { id: "s3_3", text: "冰涼", hint: "⚠️ 這裡需要單字感受詞「涼」！" },
-                            { id: "s3_4", text: "心碎", hint: "「心碎」是動詞，不符合結構！" }
-                        ]
+                        sentence: "放學鐘聲一響，同學們都（　　）地跑到公布欄前看比賽結果。",
+                        answer: "迫不及待",
+                        options: ["迫不及待", "探奧索隱", "千叮萬囑", "無可奈何"],
+                        hint: "形容心情急切，不願等待。"
                     },
                     {
-                        target: ["鼻頭", "酸"],
-                        cards: [
-                            { id: "s3_5", text: "鼻頭", hint: "正確！「鼻頭」是身體部位名詞。" },
-                            { id: "s3_6", text: "酸", hint: "正確！「酸」是感動或想哭時的感覺形容詞。" },
-                            { id: "s3_7", text: "心頭", hint: "這題是描寫鼻子的反應，選「鼻頭」最合適！" },
-                            { id: "s3_8", text: "哭", hint: "⚠️「哭」是動詞，第二格需要形容詞「酸」！" }
-                        ]
+                        sentence: "去年颱風帶來的嚴重土石流，居民至今談起仍有（　　）。",
+                        answer: "切膚之痛",
+                        options: ["切膚之痛", "玉液瓊漿", "迫不及待", "探奧索隱"],
+                        hint: "比喻極為深刻難忘的感受與經驗。"
                     },
                     {
-                        target: ["頭皮", "麻"],
-                        cards: [
-                            { id: "s3_9", text: "頭皮", hint: "正確！「頭皮」是身體部位名詞。" },
-                            { id: "s3_10", text: "麻", hint: "正確！「麻」是震驚或害怕時的感受形容詞。" },
-                            { id: "s3_11", text: "發麻", hint: "⚠️ 這裡需要單字形容詞「麻」！" },
-                            { id: "s3_12", text: "害怕", hint: "「害怕」是心理情緒，這裡要填生理感受！" }
-                        ]
+                        sentence: "大熱天剛運動完喝上一口冰涼甘甜的蜂蜜水，真是（　　）啊！",
+                        answer: "玉液瓊漿",
+                        options: ["玉液瓊漿", "無可奈何", "千叮萬囑", "迫不及待"],
+                        hint: "比喻香醇的美酒或甘美的飲品。"
                     }
                 ]
             },
             {
-                id: 4,
-                title: "【結構四】感官/體驗句",
-                formula: "動詞(動作) ＋ 到 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物/感受)",
-                example: "感覺 到 真正 的 孤獨",
-                structure: [
-                    { type: "slot", label: "動詞", placeholder: "拖入 動詞" },
-                    { type: "static", text: "到" },
-                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "名詞", placeholder: "拖入 名詞" }
-                ],
-                subQuestions: [
+                lesson: 5,
+                title: "第 5 課成語特訓",
+                questions: [
                     {
-                        target: ["感覺", "真正", "孤獨"],
-                        cards: [
-                            { id: "s4_1", text: "感覺", hint: "正確！「感覺」是感官動詞。" },
-                            { id: "s4_2", text: "真正", hint: "正確！「真正」是修飾孤獨的形容詞。" },
-                            { id: "s4_3", text: "孤獨", hint: "正確！「孤獨」是心理狀態事物名詞。" },
-                            { id: "s4_4", text: "孤獨的", hint: "⚠️ 框外已印有『的』字，不要選重複的！" },
-                            { id: "s4_5", text: "品嚐", hint: "孤獨是用「感覺到」，不是品嚐！" }
-                        ]
+                        sentence: "要想學業有成，就必須（　　），千萬不可耍小聰明或好高騖遠。",
+                        answer: "腳踏實地",
+                        options: ["腳踏實地", "心浮氣躁", "一手遮天", "捉襟見肘"],
+                        hint: "比喻做事切實穩健。"
                     },
                     {
-                        target: ["品嚐", "精緻", "料理"],
-                        cards: [
-                            { id: "s4_6", text: "品嚐", hint: "正確！「品嚐」是動作動詞。" },
-                            { id: "s4_7", text: "精緻", hint: "正確！「精緻」是用來形容食物的形容詞。" },
-                            { id: "s4_8", text: "料理", hint: "正確！「料理」是事物名詞。" },
-                            { id: "s4_9", text: "品嚐到", hint: "⚠️ 框外已有『到』字了！" },
-                            { id: "s4_10", text: "美味的", hint: "⚠️ 卡片不要重複包含『的』字！" }
-                        ]
+                        sentence: "如果平日能量入為出，自然可避免每到月底就陷入（　　）的窘態。",
+                        answer: "捉襟見肘",
+                        options: ["捉襟見肘", "沙裡淘金", "十拿九穩", "腳踏實地"],
+                        hint: "比喻短缺不足，窮於應付的窘態。"
                     },
                     {
-                        target: ["遭遇", "空前", "災難"],
-                        cards: [
-                            { id: "s4_11", text: "遭遇", hint: "正確！「遭遇」是碰到的動詞。" },
-                            { id: "s4_12", text: "空前", hint: "正確！「空前」是形容巨大的形容詞。" },
-                            { id: "s4_13", text: "災難", hint: "正確！「災難」是事物名詞。" },
-                            { id: "s4_14", text: "碰見", hint: "面對巨大災難，課本標準用詞為「遭遇」！" },
-                            { id: "s4_15", text: "害怕", hint: "最後一格需要名詞「災難」！" }
-                        ]
+                        sentence: "紙包不住火，犯了錯就該勇敢認錯，不要妄想可以（　　）。",
+                        answer: "一手遮天",
+                        options: ["一手遮天", "沙裡淘金", "心浮氣躁", "十拿九穩"],
+                        hint: "比喻玩弄權術、瞞上欺下的行徑。"
                     }
                 ]
             },
             {
-                id: 5,
-                title: "【結構五】副詞修飾動作句",
-                formula: "名詞(事物) ＋ 副詞(如何) ＋ 的 ＋ 動詞(動作) ＋ 名詞(事物)",
-                example: "春風 輕柔 的 拂過 杏樹林",
-                structure: [
-                    { type: "slot", label: "名詞(主語)", placeholder: "拖入 名詞" },
-                    { type: "slot", label: "副詞(狀態)", placeholder: "拖入 副詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
-                    { type: "slot", label: "名詞(賓語)", placeholder: "拖入 名詞" }
-                ],
-                subQuestions: [
+                lesson: 6,
+                title: "第 6 課成語特訓",
+                questions: [
                     {
-                        target: ["春風", "輕柔", "拂過", "杏樹林"],
-                        cards: [
-                            { id: "s5_1", text: "春風", hint: "正確！「春風」是自然景物主詞名詞。" },
-                            { id: "s5_2", text: "輕柔", hint: "正確！「輕柔」是狀態副詞。" },
-                            { id: "s5_3", text: "拂過", hint: "正確！「拂過」是微風吹動的動作動詞。" },
-                            { id: "s5_4", text: "杏樹林", hint: "正確！「杏樹林」是地點事物名詞。" },
-                            { id: "s5_5", text: "吹襲", hint: "春風是「拂過」，強風才會「吹襲」！" },
-                            { id: "s5_6", text: "輕柔的", hint: "⚠️ 外面已經有『的』字了！" }
-                        ]
+                        sentence: "辯論台上，他態度從容不迫，（　　），贏得了評審的一致好評。",
+                        answer: "侃侃而談",
+                        options: ["侃侃而談", "冷嘲熱諷", "李代桃僵", "不屑一顧"],
+                        hint: "形容說話從容不迫、條理分明的樣子。"
                     },
                     {
-                        target: ["海浪", "輕輕", "拍打", "沙灘"],
-                        cards: [
-                            { id: "s5_7", text: "海浪", hint: "正確！「海浪」是自然事物名詞。" },
-                            { id: "s5_8", text: "輕輕", hint: "正確！「輕輕」是形容動作輕柔的副詞。" },
-                            { id: "s5_9", text: "拍打", hint: "正確！「拍打」是海浪動作動詞。" },
-                            { id: "s5_10", text: "沙灘", hint: "正確！「沙灘」是地點事物名詞。" },
-                            { id: "s5_11", text: "沖走", hint: "課本標準例句海浪動作是「拍打」！" },
-                            { id: "s5_12", text: "海洋", hint: "最後一格接受拍打的是「沙灘」！" }
-                        ]
+                        sentence: "自從他改過自新後，待人親切熱情，跟過去相比簡直是（　　）。",
+                        answer: "判若兩人",
+                        options: ["判若兩人", "一哄而散", "李代桃僵", "冷嘲熱諷"],
+                        hint: "形容一個人的行為態度，前後截然不同。"
                     },
                     {
-                        target: ["強風", "無情", "吹襲", "城鎮"],
-                        cards: [
-                            { id: "s5_13", text: "強風", hint: "正確！「強風」是氣象事物名詞。" },
-                            { id: "s5_14", text: "無情", hint: "正確！「無情」在此作為修飾吹襲的副詞。" },
-                            { id: "s5_15", text: "吹襲", hint: "正確！「吹襲」是強風侵襲的動作動詞。" },
-                            { id: "s5_16", text: "城鎮", hint: "正確！「城鎮」是地點事物名詞。" },
-                            { id: "s5_17", text: "無情的", hint: "⚠️ 外面已有『的』字，不要重複！" },
-                            { id: "s5_18", text: "拂過", hint: "強風非常猛烈，動作是「吹襲」！" }
-                        ]
-                    }
-                ]
-            },
-            {
-                id: 6,
-                title: "【結構六】與字介詞句",
-                formula: "與 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物) ＋ 動詞(發生什麼)",
-                example: "與 更好 的 自己 相遇",
-                structure: [
-                    { type: "static", text: "與" },
-                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "名詞", placeholder: "拖入 名詞" },
-                    { type: "slot", label: "動詞", placeholder: "拖入 動詞" }
-                ],
-                subQuestions: [
-                    {
-                        target: ["更好", "自己", "相遇"],
-                        cards: [
-                            { id: "s6_1", text: "更好", hint: "正確！「更好」是修飾自己的形容詞。" },
-                            { id: "s6_2", text: "自己", hint: "正確！「自己」是代名詞。" },
-                            { id: "s6_3", text: "相遇", hint: "正確！「相遇」是動作動詞。" },
-                            { id: "s6_4", text: "美好的", hint: "⚠️ 注意外面已經印有『的』字了！" },
-                            { id: "s6_5", text: "遇見", hint: "例句標準結尾是「相遇」！" }
-                        ]
-                    },
-                    {
-                        target: ["難忘", "故人", "重逢"],
-                        cards: [
-                            { id: "s6_6", text: "難忘", hint: "正確！「難忘」是修飾故人的形容詞。" },
-                            { id: "s6_7", text: "故人", hint: "正確！「故人」是老朋友人物名詞。" },
-                            { id: "s6_8", text: "重逢", hint: "正確！「重逢」是再次相聚的動詞。" },
-                            { id: "s6_9", text: "忘記", hint: "「忘記」是動詞，第一格需要形容詞！" },
-                            { id: "s6_10", text: "相遇", hint: "針對老朋友（故人），最恰當的動詞是「重逢」！" }
-                        ]
-                    },
-                    {
-                        target: ["離奇", "事情", "交錯"],
-                        cards: [
-                            { id: "s6_11", text: "離奇", hint: "正確！「離奇」是形容怪異罕見的形容詞。" },
-                            { id: "s6_12", text: "事情", hint: "正確！「事情」是事物名詞。" },
-                            { id: "s6_13", text: "交錯", hint: "正確！「交錯」是錯綜相遇的動詞。" },
-                            { id: "s6_14", text: "故人", hint: "搭配「離奇」，對象是「事情」！" },
-                            { id: "s6_15", text: "發生", hint: "課本標準搭配動詞是「交錯」！" }
-                        ]
-                    }
-                ]
-            },
-            {
-                id: 7,
-                title: "【結構七】讓字致使句",
-                formula: "讓 ＋ 名詞(對象) ＋ 更 ＋ 形容詞(如何) ＋ 的 ＋ 名詞(事物)",
-                example: "讓 生活 更 美好 的 解答",
-                structure: [
-                    { type: "static", text: "讓" },
-                    { type: "slot", label: "名詞(對象)", placeholder: "拖入 對象名詞" },
-                    { type: "static", text: "更" },
-                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "名詞(結果)", placeholder: "拖入 名詞" }
-                ],
-                subQuestions: [
-                    {
-                        target: ["生活", "美好", "解答"],
-                        cards: [
-                            { id: "s7_1", text: "生活", hint: "正確！「生活」是受改善的對象名詞。" },
-                            { id: "s7_2", text: "美好", hint: "正確！「美好」是形容詞。" },
-                            { id: "s7_3", text: "解答", hint: "正確！「解答」是成果名詞。" },
-                            { id: "s7_4", text: "更美好", hint: "⚠️ 外面已經有『更』字了！" },
-                            { id: "s7_5", text: "變好", hint: "「變好」是動詞，第二格需要形容詞！" }
-                        ]
-                    },
-                    {
-                        target: ["心情", "開朗", "良藥"],
-                        cards: [
-                            { id: "s7_6", text: "心情", hint: "正確！「心情」是心態對象名詞。" },
-                            { id: "s7_7", text: "開朗", hint: "正確！「開朗」是形容心境的形容詞。" },
-                            { id: "s7_8", text: "良藥", hint: "正確！「良藥」在此比喻妙方名詞。" },
-                            { id: "s7_9", text: "環境", hint: "如果第一格是心情，結尾是搭配「良藥」！" },
-                            { id: "s7_10", text: "高興", hint: "形容心境豁達，課本標準用「開朗」！" }
-                        ]
-                    },
-                    {
-                        target: ["環境", "整潔", "妙方"],
-                        cards: [
-                            { id: "s7_11", text: "環境", hint: "正確！「環境」是生活空間名詞。" },
-                            { id: "s7_12", text: "整潔", hint: "正確！「整潔」是環境狀態形容詞。" },
-                            { id: "s7_13", text: "妙方", hint: "正確！「妙方」是好辦法名詞。" },
-                            { id: "s7_14", text: "乾淨的", hint: "⚠️ 框外已印有『的』字了！" },
-                            { id: "s7_15", text: "良藥", hint: "針對環境清潔，用「妙方」比「良藥」更恰當！" }
-                        ]
-                    }
-                ]
-            },
-            {
-                id: 8,
-                title: "【結構八】而/為轉變句",
-                formula: "形容詞 ＋ 而 ＋ 形容詞 ＋ 的 ＋ 名詞（或：動詞 ＋ 為 ＋ 形容詞 ＋ 的 ＋ 名詞）",
-                example: "敏銳 而 有智慧 的 人 （或：轉化 為 幽默 的 談吐）",
-                structure: [
-                    { type: "slot", label: "動詞(動作)", placeholder: "拖入 動詞" },
-                    { type: "static", text: "為" },
-                    { type: "slot", label: "形容詞", placeholder: "拖入 形容詞" },
-                    { type: "static", text: "的" },
-                    { type: "slot", label: "名詞(事物)", placeholder: "拖入 名詞" }
-                ],
-                subQuestions: [
-                    {
-                        target: ["轉化", "幽默", "談吐"],
-                        cards: [
-                            { id: "s8_1", text: "轉化", hint: "正確！「轉化」是轉變動詞。" },
-                            { id: "s8_2", text: "幽默", hint: "正確！「幽默」是形容風趣的形容詞。" },
-                            { id: "s8_3", text: "談吐", hint: "正確！「談吐」是說話表現名詞。" },
-                            { id: "s8_4", text: "幽默的", hint: "⚠️ 框外已經有『的』字，不要重複！" },
-                            { id: "s8_5", text: "變成", hint: "課本標準動詞為「轉化」！" }
-                        ]
-                    },
-                    {
-                        target: ["轉變", "有趣", "人物"],
-                        cards: [
-                            { id: "s8_6", text: "轉變", hint: "正確！「轉變」是改變動詞。" },
-                            { id: "s8_7", text: "有趣", hint: "正確！「有趣」是修飾人物的形容詞。" },
-                            { id: "s8_8", text: "人物", hint: "正確！「人物」是角色名詞。" },
-                            { id: "s8_9", text: "化身", hint: "如果選人物，前面動作是「轉變」！" },
-                            { id: "s8_10", text: "開心", hint: "修飾性格特點，課本用「有趣」！" }
-                        ]
-                    },
-                    {
-                        target: ["化身", "勇敢", "士兵"],
-                        cards: [
-                            { id: "s8_11", text: "化身", hint: "正確！「化身」是轉變為某種身分的動詞。" },
-                            { id: "s8_12", text: "勇敢", hint: "正確！「勇敢」是形容氣魄的形容詞。" },
-                            { id: "s8_13", text: "士兵", hint: "正確！「士兵」是身分名詞。" },
-                            { id: "s8_14", text: "化身為", hint: "⚠️ 外面已經有『為』字了，請不要重複！" },
-                            { id: "s8_15", text: "英雄", hint: "課本這題的標準對象是「士兵」！" }
-                        ]
+                        sentence: "黃先生為人清廉正直，對於任何名利的誘惑總是不為所動、（　　）。",
+                        answer: "不屑一顧",
+                        options: ["不屑一顧", "冷嘲熱諷", "一哄而散", "侃侃而談"],
+                        hint: "輕視、瞧不起，不放在眼裡。"
                     }
                 ]
             }
         ];
 
-        let currentLevelIndex = 0;
-        let currentSubQuestionIndex = 0; // 0, 1, 2 分別代表該關卡的第 1, 2, 3 題
-        let score = 0;
-        let userSelections = [];
+        /* 全域導航狀態控制 */
+        let activeTab = 'phrase'; // 'phrase' | 'idiom' | 'dict'
+        let idiomLevelIndex = 0;
+        let idiomSubQuestionIndex = 0;
+        let idiomScore = 0;
 
-        // DOM 元素引用
-        const levelNavBtns = document.getElementById('levelNavBtns');
-        const levelBadge = document.getElementById('levelBadge');
-        const levelTitle = document.getElementById('levelTitle');
-        const scoreText = document.getElementById('scoreText');
-        const subQuestionStars = document.getElementById('subQuestionStars');
-        const subQuestionText = document.getElementById('subQuestionText');
-        const structureFormula = document.getElementById('structureFormula');
-        const exampleSentence = document.getElementById('exampleSentence');
-        const dropZoneContainer = document.getElementById('dropZoneContainer');
-        const cardPool = document.getElementById('cardPool');
-        const messageBanner = document.getElementById('messageBanner');
-        const messageText = document.getElementById('messageText');
-        const checkBtn = document.getElementById('checkBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const clearModal = document.getElementById('clearModal');
-        const modalMsg = document.getElementById('modalMsg');
-        const modalNextLevelBtn = document.getElementById('modalNextLevelBtn');
+        const tabPhrase = document.getElementById('tabPhrase');
+        const tabIdiom = document.getElementById('tabIdiom');
+        const tabDict = document.getElementById('tabDict');
+        const phraseSection = document.getElementById('phraseSection');
+        const idiomSection = document.getElementById('idiomSection');
+        const dictSection = document.getElementById('dictSection');
+        const phraseNavWrapper = document.getElementById('phraseNavWrapper');
+        const idiomNavWrapper = document.getElementById('idiomNavWrapper');
 
-        // 初始化關卡按鈕選單
-        function initNavBtns() {
-            levelNavBtns.innerHTML = '';
-            gameLevels.forEach((lvl, idx) => {
+        function switchTab(tabName) {
+            activeTab = tabName;
+            [tabPhrase, tabIdiom, tabDict].forEach(b => {
+                b.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
+            });
+
+            phraseSection.classList.add('hidden');
+            idiomSection.classList.add('hidden');
+            dictSection.classList.add('hidden');
+            phraseNavWrapper.classList.add('hidden');
+            idiomNavWrapper.classList.add('hidden');
+
+            if (tabName === 'phrase') {
+                tabPhrase.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105";
+                phraseSection.classList.remove('hidden');
+                phraseNavWrapper.classList.remove('hidden');
+            } else if (tabName === 'idiom') {
+                tabIdiom.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-emerald-500 text-white border-emerald-400 scale-105";
+                idiomSection.classList.remove('hidden');
+                idiomNavWrapper.classList.remove('hidden');
+                loadIdiomQuestion();
+            } else if (tabName === 'dict') {
+                tabDict.className = "tab-btn px-6 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-sky-500 text-white border-sky-400 scale-105";
+                dictSection.classList.remove('hidden');
+                renderDictCards('all', '');
+            }
+        }
+
+        tabPhrase.addEventListener('click', () => switchTab('phrase'));
+        tabIdiom.addEventListener('click', () => switchTab('idiom'));
+        tabDict.addEventListener('click', () => switchTab('dict'));
+
+        /* ========================================================
+           2. 成語遊戲互動邏輯
+           ======================================================== */
+        const idiomLessonNavBtns = document.getElementById('idiomLessonNavBtns');
+        const idiomLessonBadge = document.getElementById('idiomLessonBadge');
+        const idiomSentenceBox = document.getElementById('idiomSentenceBox');
+        const idiomOptionPool = document.getElementById('idiomOptionPool');
+        const idiomProgressStars = document.getElementById('idiomProgressStars');
+        const idiomProgressText = document.getElementById('idiomProgressText');
+        const idiomScoreText = document.getElementById('idiomScoreText');
+        const idiomMessageBanner = document.getElementById('idiomMessageBanner');
+        const idiomMessageText = document.getElementById('idiomMessageText');
+        const idiomNextBtn = document.getElementById('idiomNextBtn');
+        const idiomHintBtn = document.getElementById('idiomHintBtn');
+
+        function initIdiomNav() {
+            idiomLessonNavBtns.innerHTML = '';
+            idiomLevels.forEach((lvl, idx) => {
                 const btn = document.createElement('button');
                 btn.className = `px-3.5 py-1.5 rounded-xl font-black text-sm transition shadow-sm border-2 ${
-                    idx === currentLevelIndex 
-                    ? 'bg-purple-500 text-white border-purple-400 scale-105' 
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'
+                    idx === idiomLevelIndex 
+                    ? 'bg-emerald-500 text-white border-emerald-400 scale-105' 
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-emerald-50'
                 }`;
-                btn.textContent = `關卡 ${lvl.id}`;
+                btn.textContent = `第 ${lvl.lesson} 課`;
                 btn.addEventListener('click', () => {
-                    currentSubQuestionIndex = 0;
-                    loadLevel(idx);
+                    idiomLevelIndex = idx;
+                    idiomSubQuestionIndex = 0;
+                    initIdiomNav();
+                    loadIdiomQuestion();
                 });
-                levelNavBtns.appendChild(btn);
+                idiomLessonNavBtns.appendChild(btn);
             });
         }
 
-        // 更新關卡內 3 題進度星標
-        function updateProgressStars() {
-            const stars = subQuestionStars.querySelectorAll('.sub-star');
+        function updateIdiomStars() {
+            const stars = idiomProgressStars.querySelectorAll('.i-star');
             stars.forEach((star, idx) => {
-                if (idx < currentSubQuestionIndex) {
-                    star.className = 'sub-star text-amber-400 text-lg scale-110'; // 已過關
-                } else if (idx === currentSubQuestionIndex) {
-                    star.className = 'sub-star text-purple-400 text-lg animate-pulse'; // 當前題
+                if (idx < idiomSubQuestionIndex) {
+                    star.className = 'i-star text-amber-400 text-lg scale-110';
+                } else if (idx === idiomSubQuestionIndex) {
+                    star.className = 'i-star text-emerald-500 text-lg animate-pulse';
                 } else {
-                    star.className = 'sub-star text-slate-300 text-lg'; // 未達
+                    star.className = 'i-star text-slate-300 text-lg';
                 }
             });
-            subQuestionText.textContent = `第 ${currentSubQuestionIndex + 1}/3 題`;
+            idiomProgressText.textContent = `第 ${idiomSubQuestionIndex + 1}/3 題`;
         }
 
-        // 載入關卡與當前題目
-        function loadLevel(idx) {
-            currentLevelIndex = idx;
-            const lvl = gameLevels[currentLevelIndex];
-            const currentQuestion = lvl.subQuestions[currentSubQuestionIndex];
+        function loadIdiomQuestion() {
+            initIdiomNav();
+            updateIdiomStars();
 
-            initNavBtns();
-            updateProgressStars();
+            const lvl = idiomLevels[idiomLevelIndex];
+            const q = lvl.questions[idiomSubQuestionIndex];
 
-            levelBadge.textContent = `關卡 ${lvl.id} / ${gameLevels.length}`;
-            levelTitle.textContent = lvl.title;
-            structureFormula.textContent = lvl.formula;
-            exampleSentence.textContent = lvl.example;
+            idiomLessonBadge.textContent = `第 ${lvl.lesson} 課`;
+            idiomMessageBanner.classList.add('hidden');
+            idiomNextBtn.classList.add('hidden');
 
-            messageBanner.classList.add('hidden');
-            checkBtn.classList.remove('hidden');
-            nextBtn.classList.add('hidden');
-
-            const slotCount = lvl.structure.filter(item => item.type === "slot").length;
-            userSelections = new Array(slotCount).fill(null);
-
-            // 動態產生 Drop Zones
-            dropZoneContainer.innerHTML = '';
-            let slotIndexCounter = 0;
-
-            lvl.structure.forEach((item) => {
-                if (item.type === "static") {
-                    const staticEl = document.createElement('div');
-                    staticEl.className = "flex items-center justify-center font-black text-2xl text-purple-700 bg-purple-100/80 border-2 border-purple-200 px-4 py-3 rounded-2xl min-w-[55px] shadow-sm";
-                    staticEl.textContent = item.text;
-                    dropZoneContainer.appendChild(staticEl);
-                } else {
-                    const slotIndex = slotIndexCounter++;
-                    const slotWrapper = document.createElement('div');
-                    slotWrapper.className = "flex flex-col gap-1 flex-1 min-w-[130px]";
-
-                    slotWrapper.innerHTML = `
-                        <span class="text-xs font-black text-slate-500 text-center">${item.label}</span>
-                        <div id="slot_${slotIndex}" data-slot="${slotIndex}" class="drop-zone border-3 border-dashed border-purple-300 bg-purple-50/50 rounded-2xl p-2 flex items-center justify-center text-center shadow-inner">
-                            <span class="text-slate-400 font-bold text-xs pointer-events-none">${item.placeholder}</span>
-                        </div>
-                    `;
-                    dropZoneContainer.appendChild(slotWrapper);
-                }
-            });
-
-            bindDropZoneEvents();
-
-            // 洗牌卡片池（載入當題專屬卡片與誘答）
-            const shuffledCards = [...currentQuestion.cards].sort(() => Math.random() - 0.5);
-            cardPool.innerHTML = '';
-
-            const pastelColors = [
-                'bg-pink-100 border-pink-200 text-pink-900 hover:bg-pink-200',
-                'bg-sky-100 border-sky-200 text-sky-900 hover:bg-sky-200',
-                'bg-purple-100 border-purple-200 text-purple-900 hover:bg-purple-200',
-                'bg-amber-100 border-amber-200 text-amber-900 hover:bg-amber-200',
-                'bg-emerald-100 border-emerald-200 text-emerald-900 hover:bg-emerald-200'
-            ];
-
-            shuffledCards.forEach((card, cIdx) => {
-                const cardEl = document.createElement('div');
-                const colorClass = pastelColors[cIdx % pastelColors.length];
-                cardEl.className = `draggable-card ${colorClass} font-black text-lg px-4 py-2.5 rounded-2xl border-2 shadow-sm flex items-center justify-center cursor-pointer select-none`;
-                cardEl.textContent = card.text;
-                cardEl.setAttribute('draggable', 'true');
-                cardEl.dataset.id = card.id;
-
-                cardEl.addEventListener('dragstart', handleDragStart);
-                cardEl.addEventListener('dragend', handleDragEnd);
-                cardEl.addEventListener('click', () => handleCardClick(card));
-
-                cardPool.appendChild(cardEl);
-            });
-        }
-
-        // 拖拉事件綁定
-        let draggedCardId = null;
-
-        function bindDropZoneEvents() {
-            const lvl = gameLevels[currentLevelIndex];
-            const slotCount = lvl.structure.filter(item => item.type === "slot").length;
-
-            for (let i = 0; i < slotCount; i++) {
-                const zone = document.getElementById(`slot_${i}`);
-                if (!zone) continue;
-
-                zone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    zone.classList.add('drag-over');
-                });
-
-                zone.addEventListener('dragleave', () => {
-                    zone.classList.remove('drag-over');
-                });
-
-                zone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    zone.classList.remove('drag-over');
-                    const cardId = e.dataTransfer.getData('text/plain') || draggedCardId;
-                    if (cardId) placeCardInSlot(cardId, i);
-                });
-            }
-        }
-
-        function handleDragStart(e) {
-            draggedCardId = e.target.dataset.id;
-            e.target.classList.add('dragging');
-            e.dataTransfer.setData('text/plain', draggedCardId);
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-        }
-
-        function handleCardClick(card) {
-            const emptySlotIndex = userSelections.findIndex(val => val === null);
-            if (emptySlotIndex !== -1) {
-                placeCardInSlot(card.id, emptySlotIndex);
-            }
-        }
-
-        function placeCardInSlot(cardId, slotIndex) {
-            const lvl = gameLevels[currentLevelIndex];
-            const currentQuestion = lvl.subQuestions[currentSubQuestionIndex];
-            const cardData = currentQuestion.cards.find(c => c.id === cardId);
-            if (!cardData) return;
-
-            const existingIndex = userSelections.findIndex(id => id === cardId);
-            if (existingIndex !== -1) {
-                userSelections[existingIndex] = null;
-                resetZoneUI(existingIndex);
-            }
-
-            userSelections[slotIndex] = cardId;
-            const zone = document.getElementById(`slot_${slotIndex}`);
-            if (!zone) return;
-
-            zone.innerHTML = `
-                <div class="bg-white border-2 border-purple-300 text-purple-950 font-black text-lg px-3 py-1.5 rounded-xl shadow-sm flex items-center justify-between w-full pop-animation">
-                    <span>${cardData.text}</span>
-                    <button class="remove-btn text-rose-400 hover:text-rose-600 text-sm ml-1">✕</button>
-                </div>
+            // 渲染挖空句子
+            const parts = q.sentence.split("（　　）");
+            idiomSentenceBox.innerHTML = `
+                ${parts[0]}
+                <span id="idiomSlot" class="inline-flex items-center justify-center min-w-[120px] px-3 py-1 bg-emerald-50 border-3 border-dashed border-emerald-400 rounded-xl text-emerald-800 font-black shadow-inner mx-1">
+                    ？
+                </span>
+                ${parts[1] || ''}
             `;
 
-            zone.querySelector('.remove-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                userSelections[slotIndex] = null;
-                resetZoneUI(slotIndex);
+            // 渲染選項卡片 (打亂順序)
+            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+            idiomOptionPool.innerHTML = '';
+
+            const pastelOptionColors = [
+                'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-950',
+                'bg-sky-50 hover:bg-sky-100 border-sky-300 text-sky-950',
+                'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950',
+                'bg-purple-50 hover:bg-purple-100 border-purple-300 text-purple-950'
+            ];
+
+            shuffledOptions.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `${pastelOptionColors[idx % 4]} p-4 rounded-2xl border-2 font-black text-xl shadow-sm hover:shadow-md transition active:scale-95 flex items-center justify-center text-center`;
+                btn.textContent = opt;
+                btn.addEventListener('click', () => checkIdiomAnswer(opt, q));
+                idiomOptionPool.appendChild(btn);
             });
         }
 
-        function resetZoneUI(slotIndex) {
-            const lvl = gameLevels[currentLevelIndex];
-            const slotItems = lvl.structure.filter(item => item.type === "slot");
-            const zone = document.getElementById(`slot_${slotIndex}`);
-            if (zone && slotItems[slotIndex]) {
-                zone.innerHTML = `<span class="text-slate-400 font-bold text-xs pointer-events-none">${slotItems[slotIndex].placeholder}</span>`;
-            }
-        }
+        function checkIdiomAnswer(selectedOption, question) {
+            const slot = document.getElementById('idiomSlot');
+            slot.textContent = selectedOption;
 
-        // 驗證按鈕
-        checkBtn.addEventListener('click', () => {
-            if (userSelections.some(val => val === null)) {
-                showMessage("⚠️ 請將所有空白格子填滿後再驗證喔！", "warning");
-                return;
-            }
+            if (selectedOption === question.answer) {
+                idiomScore += 10;
+                idiomScoreText.textContent = idiomScore;
 
-            const lvl = gameLevels[currentLevelIndex];
-            const currentQuestion = lvl.subQuestions[currentSubQuestionIndex];
-            const userCardObjects = userSelections.map(id => currentQuestion.cards.find(c => c.id === id));
-            const userAnswers = userCardObjects.map(c => c.text);
-
-            const isCorrect = userAnswers.every((val, idx) => val === currentQuestion.target[idx]);
-
-            if (isCorrect) {
-                score += 10;
-                scoreText.textContent = score;
+                slot.className = "inline-flex items-center justify-center min-w-[120px] px-3 py-1 bg-emerald-400 text-white rounded-xl font-black shadow-md mx-1 pop-animation";
 
                 confetti({
-                    particleCount: 100,
-                    spread: 70,
+                    particleCount: 80,
+                    spread: 60,
                     origin: { y: 0.6 }
                 });
 
-                checkBtn.classList.add('hidden');
+                showIdiomMessage(`🎉 太優秀了！答對了！【${question.answer}】釋義：${question.hint}`, "success");
 
-                if (currentSubQuestionIndex < 2) {
-                    // 完成當前題目，進入本關下一題
-                    showMessage(`🎉 太棒了！答對第 ${currentSubQuestionIndex + 1} 題！請點擊按鈕挑戰下一題！`, "success");
-                    nextBtn.innerHTML = `進入第 ${currentSubQuestionIndex + 2} 題 <i class="fa-solid fa-arrow-right"></i>`;
-                    nextBtn.classList.remove('hidden');
+                // 禁用選項
+                Array.from(idiomOptionPool.children).forEach(c => c.disabled = true);
+
+                if (idiomSubQuestionIndex < 2) {
+                    idiomNextBtn.innerHTML = `進入第 ${idiomSubQuestionIndex + 2} 題 <i class="fa-solid fa-arrow-right"></i>`;
+                    idiomNextBtn.classList.remove('hidden');
                 } else {
-                    // 完成本關第 3 題，跳出通關彈窗
-                    showMessage("🌟 太強了！本關 3 題全數通關！", "success");
                     setTimeout(() => {
-                        modalMsg.textContent = `你已成功征服 ${lvl.title} 的 3 道練習題，短語詞性掌握得非常完美！`;
+                        modalTitle.textContent = `🎉 恭喜通過第 ${idiomLevels[idiomLevelIndex].lesson} 課成語挑戰！`;
+                        modalMsg.textContent = `太強了！你已經順利解開本課 3 道成語情境難題，詞義與語境掌握得非常熟練！`;
+                        modalNextLevelBtn.textContent = "挑戰下一課成語 🚀";
                         clearModal.classList.remove('hidden');
-                    }, 600);
+                        modalNextLevelBtn.onclick = () => {
+                            clearModal.classList.add('hidden');
+                            idiomSubQuestionIndex = 0;
+                            if (idiomLevelIndex < idiomLevels.length - 1) {
+                                idiomLevelIndex++;
+                            } else {
+                                idiomLevelIndex = 0;
+                            }
+                            loadIdiomQuestion();
+                        };
+                    }, 650);
                 }
             } else {
-                let hintMsg = "";
-                const wrongCard = userCardObjects.find((card, idx) => card.text !== currentQuestion.target[idx]);
+                slot.className = "inline-flex items-center justify-center min-w-[120px] px-3 py-1 bg-rose-400 text-white rounded-xl font-black shadow-md mx-1 shake-animation";
 
-                if (wrongCard && wrongCard.hint) {
-                    hintMsg = wrongCard.hint;
-                } else {
-                    hintMsg = "⚠️ 詞性或語意順序不太對喔！請重新參考上方【結構剖析】修正！";
-                }
+                const dbItem = idiomDatabase.find(item => item.idiom === selectedOption);
+                const wrongHint = dbItem ? `「${selectedOption}」的意思是「${dbItem.meaning}」，放在這個句子不太合適喔！` : "語意不符合前後情境喔！";
 
-                showMessage(hintMsg, "error");
-
-                // 震動視覺反饋
-                const slotCount = lvl.structure.filter(i => i.type === "slot").length;
-                for (let i = 0; i < slotCount; i++) {
-                    const z = document.getElementById(`slot_${i}`);
-                    if (z) z.classList.add('shake-animation');
-                }
-                setTimeout(() => {
-                    for (let i = 0; i < slotCount; i++) {
-                        const z = document.getElementById(`slot_${i}`);
-                        if (z) z.classList.remove('shake-animation');
-                    }
-                }, 500);
-            }
-        });
-
-        function showMessage(msg, type) {
-            messageText.textContent = msg;
-            messageBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
-
-            if (type === "success") {
-                messageBanner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
-            } else if (type === "error") {
-                messageBanner.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
-            } else {
-                messageBanner.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+                showIdiomMessage(`⚠️ ${wrongHint} 請再仔細思考一下！`, "error");
             }
         }
 
-        // 點擊「進入下一題」
-        nextBtn.addEventListener('click', () => {
-            if (currentSubQuestionIndex < 2) {
-                currentSubQuestionIndex++;
-                loadLevel(currentLevelIndex);
-            }
-        });
+        function showIdiomMessage(msg, type) {
+            idiomMessageText.textContent = msg;
+            idiomMessageBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
 
-        // 彈窗「解鎖並進入下一關」
-        modalNextLevelBtn.addEventListener('click', () => {
-            clearModal.classList.add('hidden');
-            currentSubQuestionIndex = 0;
-            if (currentLevelIndex < gameLevels.length - 1) {
-                loadLevel(currentLevelIndex + 1);
+            if (type === "success") {
+                idiomMessageBanner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
             } else {
-                loadLevel(0); // 循環通關
+                idiomMessageBanner.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+            }
+        }
+
+        idiomNextBtn.addEventListener('click', () => {
+            if (idiomSubQuestionIndex < 2) {
+                idiomSubQuestionIndex++;
+                loadIdiomQuestion();
             }
         });
 
-        resetBtn.addEventListener('click', () => {
-            loadLevel(currentLevelIndex);
+        idiomHintBtn.addEventListener('click', () => {
+            const q = idiomLevels[idiomLevelIndex].questions[idiomSubQuestionIndex];
+            showIdiomMessage(`💡 成語提示：這道題需要的成語意思為「${q.hint}」`, "success");
         });
 
-        // 預設載入第 1 關第 1 題
+        /* ========================================================
+           3. 成語辭典資料庫檢索邏輯
+           ======================================================== */
+        const dictCardList = document.getElementById('dictCardList');
+        const dictSearchInput = document.getElementById('dictSearchInput');
+        const dictFilterBtns = document.querySelectorAll('.dict-filter-btn');
+
+        let currentFilterLesson = 'all';
+
+        function renderDictCards(lessonFilter, keyword) {
+            dictCardList.innerHTML = '';
+            
+            const filtered = idiomDatabase.filter(item => {
+                const matchLesson = (lessonFilter === 'all') || (item.lesson.toString() === lessonFilter);
+                const kw = keyword.trim().toLowerCase();
+                const matchKeyword = !kw || 
+                    item.idiom.includes(kw) || 
+                    item.meaning.includes(kw) || 
+                    item.synonyms.includes(kw) || 
+                    item.antonyms.includes(kw) ||
+                    item.example.includes(kw);
+                return matchLesson && matchKeyword;
+            });
+
+            if (filtered.length === 0) {
+                dictCardList.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400 font-bold">
+                        <i class="fa-solid fa-face-meh text-4xl mb-2"></i>
+                        <p>找不到符合條件的成語，換個關鍵字搜尋看看吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const lessonBadgeColors = {
+                1: 'bg-blue-100 text-blue-800 border-blue-200',
+                2: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                3: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                4: 'bg-purple-100 text-purple-800 border-purple-200',
+                5: 'bg-orange-100 text-orange-800 border-orange-200',
+                6: 'bg-pink-100 text-pink-800 border-pink-200'
+            };
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                const badgeColor = lessonBadgeColors[item.lesson] || 'bg-slate-100 text-slate-800';
+                card.className = "bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs px-2.5 py-1 rounded-lg border font-black ${badgeColor}">第 ${item.lesson} 課</span>
+                            <span class="text-xs text-slate-400 font-bold">學生成語</span>
+                        </div>
+                        <h4 class="text-2xl font-black text-slate-800 mb-2 tracking-wide">${item.idiom}</h4>
+                        <p class="text-slate-700 font-bold text-sm mb-3 leading-relaxed">
+                            <strong class="text-purple-600">【核心解釋】</strong>${item.meaning}
+                        </p>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-bold mb-3">
+                            <div class="bg-slate-50 p-2 rounded-xl">
+                                <span class="text-emerald-600 font-black">近義：</span>${item.synonyms}
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-xl">
+                                <span class="text-rose-500 font-black">反義：</span>${item.antonyms}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50/70 border border-amber-100 p-2.5 rounded-xl text-xs font-bold text-slate-700 leading-snug">
+                        <strong class="text-amber-800"><i class="fa-solid fa-quote-left mr-1"></i>造句：</strong>${item.example}
+                    </div>
+                `;
+                dictCardList.appendChild(card);
+            });
+        }
+
+        dictFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                dictFilterBtns.forEach(b => {
+                    b.className = "dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100";
+                });
+                btn.className = "dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-sky-500 text-white";
+                currentFilterLesson = btn.dataset.lesson;
+                renderDictCards(currentFilterLesson, dictSearchInput.value);
+            });
+        });
+
+        dictSearchInput.addEventListener('input', (e) => {
+            renderDictCards(currentFilterLesson, e.target.value);
+        });
+
+        /* 初始化原有的短語關卡 */
+        initNavBtns();
         loadLevel(0);
+        initIdiomNav();
     </script>
 </body>
 </html>
