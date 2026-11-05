@@ -2561,13 +2561,22 @@
                     origin: { y: 0.6 }
                 });
 
-                showPhraseMessage(`🎉 太棒了！完全答對！詞性搭配完全吻合標準結構！`, "success");
-
                 checkBtn.classList.add('hidden');
                 if (currentSubQuestionIdx < 2) {
+                    showPhraseMessage(`🎉 太棒了！完全答對！即將自動進入第 ${currentSubQuestionIdx + 2} 題 🚀`, "success");
                     nextBtn.innerHTML = `進入第 ${currentSubQuestionIdx + 2} 題 <i class="fa-solid fa-arrow-right"></i>`;
                     nextBtn.classList.remove('hidden');
+
+                    // 1.2 秒後自動平滑進入下一題
+                    setTimeout(() => {
+                        // 確認仍在同一關且尚未被手動切換
+                        if (checkBtn.classList.contains('hidden') && !nextBtn.classList.contains('hidden')) {
+                            currentSubQuestionIdx++;
+                            loadPhraseLevel();
+                        }
+                    }, 1200);
                 } else {
+                    showPhraseMessage(`🎉 太棒了！本關 3 題全部順利過關！`, "success");
                     setTimeout(() => {
                         modalIconBox.className = "w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-4xl mb-4 shadow-inner";
                         modalIconBox.innerHTML = '<i class="fa-solid fa-crown"></i>';
