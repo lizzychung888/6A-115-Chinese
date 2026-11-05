@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>國小六年級國語 1-6 課短語練習特訓樂園</title>
+    <title>國小六年級國語 1-6 課全方位考前特訓大樂園</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome 圖標庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Canvas Confetti -->
+    <!-- Canvas Confetti 彩帶動畫 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Google Fonts -->
+    <!-- Google Fonts 圓體字型 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
         body {
-            font-family: 'Zen Maru Gothic', sans-serif;
+            font-family: 'Zen Maru Gothic', 'Microsoft JhengHei', sans-serif;
             background: linear-gradient(135deg, #fdf4ff 0%, #e0f2fe 50%, #f0fdf4 100%);
             min-height: 100vh;
             color: #334155;
             user-select: none;
         }
 
+        /* 拖拉放置區 */
         .drop-zone {
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            min-height: 85px;
+            min-height: 80px;
         }
 
         .drop-zone.drag-over {
@@ -36,6 +37,7 @@
             box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.25);
         }
 
+        /* 可拖拉卡片 */
         .draggable-card {
             cursor: grab;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -43,20 +45,21 @@
         }
 
         .draggable-card:hover {
-            transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 18px -4px rgba(0, 0, 0, 0.08);
         }
 
         .draggable-card:active {
             cursor: grabbing;
             transform: scale(1.06);
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.15);
         }
 
         .draggable-card.dragging {
             opacity: 0.35;
         }
 
+        /* 動畫效果 */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-8px); }
@@ -69,6 +72,12 @@
             100% { transform: scale(1); }
         }
 
+        @keyframes matched-disappear {
+            0% { transform: scale(1.05); opacity: 1; }
+            50% { transform: scale(1.12); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; height: 0; margin: 0; padding: 0; border: none; }
+        }
+
         .shake-animation {
             animation: shake 0.45s ease-in-out;
         }
@@ -77,341 +86,409 @@
             animation: bounce-pop 0.4s ease-out;
         }
 
+        .matched-out {
+            animation: matched-disappear 0.45s forwards ease-in-out;
+            pointer-events: none;
+        }
+
+        /* 詞語配對卡片 */
+        .match-card {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        .match-card:hover {
+            transform: translateY(-2px) scale(1.015);
+        }
+        .match-card.selected-term {
+            border-color: #ec4899 !important;
+            background-color: #fdf2f8 !important;
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.3);
+            transform: scale(1.03);
+        }
+        .match-card.selected-def {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+            transform: scale(1.03);
+        }
+
+        /* 成語字典卡片點擊微動 */
         .idiom-card-clickable {
             cursor: pointer;
             transition: all 0.25s ease;
         }
 
         .idiom-card-clickable:hover {
-            transform: translateY(-5px) scale(1.02);
+            transform: translateY(-4px) scale(1.02);
             border-color: #38bdf8 !important;
-            box-shadow: 0 15px 25px -5px rgba(56, 189, 248, 0.25);
+            box-shadow: 0 12px 22px -5px rgba(56, 189, 248, 0.25);
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-between p-4 md:p-8">
+<body class="flex flex-col items-center justify-between p-3 md:p-6">
 
     <!-- 頂部頁首與全域模式切換 -->
     <header class="w-full max-w-6xl text-center mb-4">
-        <div class="inline-flex items-center gap-2 bg-pink-100/90 text-pink-700 border border-pink-200 px-5 py-1.5 rounded-full font-bold text-base mb-2 shadow-sm">
-            <i class="fa-solid fa-graduation-cap text-pink-500"></i> 國小六年級 國語 1-6 課特訓大樂園
+        <div class="inline-flex items-center gap-2 bg-pink-100/90 text-pink-700 border border-pink-200 px-5 py-1.5 rounded-full font-bold text-sm md:text-base mb-2 shadow-sm">
+            <i class="fa-solid fa-graduation-cap text-pink-500"></i> 國小六年級 國語 1-6 課全方位特訓大樂園
         </div>
-        <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight mb-3">
-            國語短語 ✕ 成語互動挑戰特訓網
+        <h1 class="text-2xl md:text-4xl font-black text-slate-800 tracking-tight mb-3">
+            國語考前複習闖關特訓營
         </h1>
         
-        <!-- 大功能切換選單 (Tab 模式：五大模組) -->
-        <div class="flex flex-wrap justify-center gap-3 mb-4">
-            <button id="tabPhrase" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105 flex items-center gap-2">
-                <i class="fa-solid fa-shapes"></i> 🧩 短語結構拼圖
+        <!-- 第一階層大廳主選單 (三大大廳) -->
+        <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-4">
+            <button id="mainTabMatch" class="main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-pink-500 text-white border-pink-400 scale-105 flex items-center gap-2">
+                <i class="fa-solid fa-clone text-pink-200"></i> 🌸 1-6課 詞語配對消消樂
             </button>
-            <button id="tabIdiom" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 flex items-center gap-2">
-                <i class="fa-solid fa-book-sparkles"></i> 📜 成語情境挑戰
+            <button id="mainTabGrammar" class="main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-purple-50 flex items-center gap-2">
+                <i class="fa-solid fa-brain text-purple-500"></i> 🧩 語法特訓大擂台
             </button>
-            <button id="tabRhetoric" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-amber-50 flex items-center gap-2">
-                <i class="fa-solid fa-masks-theater"></i> 🎭 修辭文法擂台
-            </button>
-            <button id="tabWord" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-rose-50 flex items-center gap-2">
-                <i class="fa-solid fa-magnifying-glass text-rose-500"></i> 🔍 字詞火眼金睛
-            </button>
-            <button id="tabDict" class="tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-sky-50 flex items-center gap-2">
-                <i class="fa-solid fa-book-open-reader"></i> 📖 成語資料庫查詢
+            <button id="mainTabDict" class="main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-sky-50 flex items-center gap-2">
+                <i class="fa-solid fa-book-open-reader text-sky-500"></i> 📖 成語百寶箱字典
             </button>
         </div>
 
-        <!-- 短語關卡按鈕區 (短語模式顯示) -->
-        <div id="phraseNavWrapper">
-            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
-                觀察結構剖析，將正確詞性的馬卡龍卡片拖入格子中！
+        <!-- 詞語配對 1-6 課子選單導航 -->
+        <div id="matchLessonNavWrapper" class="flex flex-col items-center">
+            <p class="text-slate-600 text-xs md:text-sm font-bold mb-2">
+                每課收錄講義 10 個核心重點詞語（非成語）！點擊左側「詞語」與右側「精確解釋」進行消除配對！
             </p>
-            <div class="flex flex-wrap justify-center gap-2 max-w-5xl mx-auto" id="levelNavBtns">
-                <!-- 關卡按鈕由 JS 動態生成 -->
+            <div class="flex flex-wrap justify-center gap-2 max-w-4xl" id="matchLessonBtns">
+                <!-- 由 JS 動態生成第 1-6 課按鈕 -->
             </div>
         </div>
 
-        <!-- 成語課次切換區 (成語模式顯示) -->
-        <div id="idiomNavWrapper" class="hidden">
-            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
-                請根據情境文意，挑選最恰當的成語填入括號中：
-            </p>
-            <div class="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto" id="idiomLessonNavBtns">
-                <!-- 由 JS 動態生成第 1-6 課與全課總複習按鈕 -->
+        <!-- 語法特訓大擂台 第二階層子選單導航 -->
+        <div id="grammarSubTabWrapper" class="hidden flex flex-col items-center">
+            <div class="flex flex-wrap justify-center gap-2 mb-2 p-1.5 bg-purple-100/70 border border-purple-200 rounded-2xl">
+                <button id="subTabPhrase" class="grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-purple-600 text-white shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-shapes"></i> 短語結構拼圖
+                </button>
+                <button id="subTabIdiom" class="grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-white/90 text-slate-700 hover:bg-emerald-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-scroll text-emerald-600"></i> 成語情境挑戰
+                </button>
+                <button id="subTabRhetoric" class="grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-white/90 text-slate-700 hover:bg-amber-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-masks-theater text-amber-600"></i> 修辭辨析擂台
+                </button>
+                <button id="subTabWord" class="grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-white/90 text-slate-700 hover:bg-rose-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-magnifying-glass text-rose-600"></i> 字詞火眼金睛
+                </button>
             </div>
-        </div>
+            
+            <!-- 短語關卡按鈕列 -->
+            <div id="phraseNavWrapper" class="mt-2">
+                <div class="flex flex-wrap justify-center gap-1.5 max-w-5xl mx-auto" id="levelNavBtns">
+                    <!-- 由 JS 生成 9 大短語關卡按鈕 -->
+                </div>
+            </div>
 
-        <!-- 修辭擂台導航區 (修辭模式顯示) -->
-        <div id="rhetoricNavWrapper" class="hidden">
-            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
-                仔細閱讀 1-6 課經典語句，判斷其運用的核心修辭手法：
-            </p>
-        </div>
-
-        <!-- 字詞火眼金睛導航區 (字詞模式顯示) -->
-        <div id="wordNavWrapper" class="hidden">
-            <p class="text-slate-600 text-sm md:text-base font-bold mb-2">
-                化身字詞偵探！辨識 1-6 課大考必背的「形近錯別字」與「多音字讀音」：
-            </p>
+            <!-- 成語課次按鈕列 -->
+            <div id="idiomNavWrapper" class="hidden mt-2">
+                <div class="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto" id="idiomLessonNavBtns">
+                    <!-- 由 JS 生成第 1-6 課按鈕 -->
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- 主遊戲區 (包含短語區、成語遊戲區與成語辭典區) -->
+    <!-- 主內容區 -->
     <main class="w-full max-w-5xl flex flex-col gap-5">
 
-        <!-- ==================== 1. 短語遊戲區域 ==================== -->
-        <div id="phraseSection" class="flex flex-col gap-5">
-            <!-- 關卡標題與結構剖析 Banner -->
-            <div class="bg-white/90 backdrop-blur border-3 border-purple-200 p-5 rounded-3xl shadow-md">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-3">
+        <!-- ==================== 1. 詞語配對消消樂大廳 (每課10個詞語) ==================== -->
+        <div id="matchSection" class="flex flex-col gap-4">
+            <div class="bg-white/90 backdrop-blur border-3 border-pink-200 p-4 md:p-5 rounded-3xl shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <span id="levelBadge" class="bg-purple-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
-                            關卡 1
-                        </span>
-                        <h2 id="levelTitle" class="text-xl font-black text-slate-800">
-                            【短語類型】
+                        <span class="w-2.5 h-7 bg-pink-500 rounded-full inline-block"></span>
+                        <h2 id="matchLessonTitle" class="text-xl md:text-2xl font-black text-slate-800 tracking-wide">
+                            第 1 課《遇見自己》詞語連連看
                         </h2>
                     </div>
                     <div class="flex items-center gap-4">
-                        <!-- 每關 3 題進度指示 -->
-                        <div class="flex items-center gap-2 bg-purple-50 px-3.5 py-1.5 rounded-2xl border border-purple-200">
-                            <span class="text-xs font-black text-purple-700">關卡進度</span>
-                            <div id="subQuestionStars" class="flex gap-1.5">
-                                <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                                <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                                <span class="sub-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                            </div>
-                            <span id="subQuestionText" class="text-xs font-black text-purple-900 ml-1">第 1/3 題</span>
+                        <div class="flex items-center gap-2 bg-pink-50 px-3.5 py-1.5 rounded-2xl border border-pink-200">
+                            <span class="text-xs font-black text-pink-700">消除進度</span>
+                            <span id="matchProgressCount" class="text-sm font-black text-pink-900">0 / 10 組</span>
                         </div>
-
-                        <span class="text-slate-500 font-bold text-sm">短語得分：<strong id="scoreText" class="text-2xl text-amber-500 font-black">0</strong></span>
-                        <button id="resetBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-3.5 py-1.5 rounded-xl transition border border-slate-200 text-sm shadow-sm">
-                            <i class="fa-solid fa-rotate-left mr-1"></i> 重練本題
+                        <span class="text-slate-500 font-bold text-sm">配對得分：<strong id="matchScoreText" class="text-2xl text-pink-500 font-black">0</strong></span>
+                        <button id="resetMatchBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-3.5 py-1.5 rounded-xl transition border border-slate-200 text-xs shadow-sm">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> 重置本課
                         </button>
                     </div>
                 </div>
-
-                <!-- 結構公式剖析與例句展示 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl">
-                        <span class="text-xs font-black text-purple-600 block mb-1">📐 結構剖析：</span>
-                        <p id="structureFormula" class="text-base font-black text-purple-950">
-                            動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)
-                        </p>
-                    </div>
-                    <div class="bg-pink-50 border border-pink-100 p-3.5 rounded-2xl">
-                        <span class="text-xs font-black text-pink-600 block mb-1">💡 課本示範例句：</span>
-                        <p id="exampleSentence" class="text-base font-black text-pink-950">
-                            摘 一片 雪白 的 雲
-                        </p>
-                    </div>
+                <div id="matchTipBanner" class="mt-3 bg-pink-50/70 border border-pink-200 p-2.5 rounded-xl text-xs font-bold text-pink-900 text-center">
+                    💡 先點選左側粉紅色的「詞語卡」，再點選右側粉藍色的「意思解釋卡」進行消除配對！
                 </div>
             </div>
 
-            <!-- 放置區 (Drop Zones) -->
-            <div class="bg-white/95 border-4 border-pink-100 p-6 rounded-3xl shadow-xl backdrop-blur">
-                <h3 class="text-slate-700 font-black text-base mb-4 text-center">
-                    👇 請依據結構剖析，將卡片填入正確位置：
-                </h3>
-
-                <div id="dropZoneContainer" class="flex flex-wrap md:flex-nowrap justify-center items-center gap-2">
-                    <!-- Drop zones dynamic DOM -->
-                </div>
-
-                <!-- 錯誤提示與智慧指導欄 -->
-                <div id="messageBanner" class="mt-5 hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
-                    <span id="messageText"></span>
-                </div>
-            </div>
-
-            <!-- 卡片池 (Card Pool) -->
-            <div class="bg-white/80 border-2 border-slate-200 p-5 rounded-3xl shadow-sm">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-slate-700 font-black text-base flex items-center gap-2">
-                        <i class="fa-solid fa-shapes text-pink-400"></i> 馬卡龍卡片池（請點擊或拖拽至目標區）：
+            <!-- 配對遊戲雙欄版面：左側10詞語，右側10解釋 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 左欄：詞語卡片 -->
+                <div class="bg-white/95 border-3 border-pink-100 p-4 rounded-3xl shadow-sm">
+                    <h3 class="text-pink-600 font-black text-sm mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-shapes text-pink-400 mr-1.5"></i> 【重點詞語卡】（點擊選取）：</span>
+                        <span class="text-xs text-slate-400 font-bold">共 10 組</span>
                     </h3>
-                    <span class="text-xs font-bold text-slate-400">包含誘答與陷阱卡喔！</span>
+                    <div id="termCardContainer" class="flex flex-col gap-2.5 min-h-[450px]">
+                        <!-- 動態渲染詞語卡 -->
+                    </div>
                 </div>
 
-                <div id="cardPool" class="flex flex-wrap justify-center gap-3 min-h-[90px] p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
-                    <!-- Cards rendered dynamically -->
+                <!-- 右欄：意思解釋卡片 -->
+                <div class="bg-white/95 border-3 border-sky-100 p-4 rounded-3xl shadow-sm">
+                    <h3 class="text-sky-600 font-black text-sm mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-comment-dots text-sky-400 mr-1.5"></i> 【語意解釋卡】（點擊配對）：</span>
+                        <span class="text-xs text-slate-400 font-bold">隨機打亂</span>
+                    </h3>
+                    <div id="defCardContainer" class="flex flex-col gap-2.5 min-h-[450px]">
+                        <!-- 動態渲染解釋卡 -->
+                    </div>
                 </div>
-            </div>
-
-            <!-- 驗證按鈕 -->
-            <div class="flex justify-center gap-4">
-                <button id="checkBtn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check"></i> 驗證組合
-                </button>
-                <button id="nextBtn" class="hidden bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
-                </button>
             </div>
         </div>
 
-        <!-- ==================== 2. 成語情境挑戰區域 ==================== -->
-        <div id="idiomSection" class="hidden flex flex-col gap-5">
-            <!-- 成語關卡 Banner -->
-            <div class="bg-white/95 border-3 border-emerald-200 p-5 rounded-3xl shadow-md">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
-                    <div class="flex items-center gap-3">
-                        <span id="idiomLessonBadge" class="bg-emerald-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
-                            第 1 課
-                        </span>
-                        <h2 id="idiomQuestionTitle" class="text-xl font-black text-slate-800">
-                            成語情境精準選詞
-                        </h2>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2 bg-emerald-50 px-3.5 py-1.5 rounded-2xl border border-emerald-200">
-                            <span class="text-xs font-black text-emerald-700">課次進度</span>
-                            <div id="idiomProgressStars" class="flex gap-1.5">
-                                <span class="i-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                                <span class="i-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                                <span class="i-star text-slate-300 text-lg transition-all"><i class="fa-solid fa-star"></i></span>
-                            </div>
-                            <span id="idiomProgressText" class="text-xs font-black text-emerald-900 ml-1">第 1/3 題</span>
+        <!-- ==================== 2. 語法特訓大擂台 (4 大子模組) ==================== -->
+        <div id="grammarSection" class="hidden flex flex-col gap-5">
+            <!-- 子模組 A：短語結構拼圖 -->
+            <div id="subSectionPhrase" class="flex flex-col gap-5">
+                <div class="bg-white/90 backdrop-blur border-3 border-purple-200 p-4 md:p-5 rounded-3xl shadow-md">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-3">
+                            <span id="levelBadge" class="bg-purple-500 text-white font-black px-4 py-1.5 rounded-xl text-base shadow-sm">
+                                關卡 1
+                            </span>
+                            <h2 id="levelTitle" class="text-lg md:text-xl font-black text-slate-800">
+                                【短語類型】
+                            </h2>
                         </div>
-                        <span class="text-slate-500 font-bold text-sm">成語得分：<strong id="idiomScoreText" class="text-2xl text-emerald-600 font-black">0</strong></span>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-2xl border border-purple-200">
+                                <span class="text-xs font-black text-purple-700">關卡進度</span>
+                                <div id="subQuestionStars" class="flex gap-1">
+                                    <span class="sub-star text-slate-300 text-base transition-all"><i class="fa-solid fa-star"></i></span>
+                                    <span class="sub-star text-slate-300 text-base transition-all"><i class="fa-solid fa-star"></i></span>
+                                    <span class="sub-star text-slate-300 text-base transition-all"><i class="fa-solid fa-star"></i></span>
+                                </div>
+                                <span id="subQuestionText" class="text-xs font-black text-purple-900 ml-1">第 1/3 題</span>
+                            </div>
+
+                            <span class="text-slate-500 font-bold text-sm">短語得分：<strong id="scoreText" class="text-xl text-amber-500 font-black">0</strong></span>
+                            <button id="resetBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-3 py-1.5 rounded-xl transition border border-slate-200 text-xs shadow-sm">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> 重練
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-purple-50 border border-purple-100 p-3 rounded-2xl">
+                            <span class="text-xs font-black text-purple-600 block mb-1">📐 結構公式：</span>
+                            <p id="structureFormula" class="text-sm md:text-base font-black text-purple-950">
+                                動詞(動作) ＋ 量詞 ＋ 形容詞(怎樣) ＋ 的 ＋ 名詞(事物)
+                            </p>
+                        </div>
+                        <div class="bg-pink-50 border border-pink-100 p-3 rounded-2xl">
+                            <span class="text-xs font-black text-pink-600 block mb-1">💡 課本示範例句：</span>
+                            <p id="exampleSentence" class="text-sm md:text-base font-black text-pink-950">
+                                摘 一片 雪白 的 雲
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-emerald-50/80 border border-emerald-100 p-3.5 rounded-2xl flex items-center justify-between">
-                    <span class="text-sm font-bold text-emerald-800">🎯 任務提示：閱讀句子情境，點選或拖曳最恰當的成語卡片填入括號中！</span>
-                    <button id="idiomHintBtn" class="text-xs bg-white text-emerald-700 border border-emerald-300 px-3 py-1 rounded-xl font-bold hover:bg-emerald-100">
-                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> 查看成語錦囊
+
+                <!-- 放置區 -->
+                <div class="bg-white/95 border-4 border-pink-100 p-5 md:p-6 rounded-3xl shadow-xl backdrop-blur">
+                    <h3 class="text-slate-700 font-black text-sm md:text-base mb-4 text-center">
+                        👇 請依據結構剖析，將卡片填入正確位置：
+                    </h3>
+
+                    <div id="dropZoneContainer" class="flex flex-wrap md:flex-nowrap justify-center items-center gap-2">
+                        <!-- Drop zones dynamic DOM -->
+                    </div>
+
+                    <div id="messageBanner" class="mt-4 hidden p-3 md:p-4 rounded-2xl text-center font-black text-sm md:text-base transition-all border-2">
+                        <span id="messageText"></span>
+                    </div>
+                </div>
+
+                <!-- 卡片池 -->
+                <div class="bg-white/80 border-2 border-slate-200 p-4 rounded-3xl shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-slate-700 font-black text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-shapes text-pink-400"></i> 馬卡龍卡片池（請點擊或拖放）：
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400">含誘答陷阱卡</span>
+                    </div>
+                    <div id="cardPool" class="flex flex-wrap justify-center gap-2.5 min-h-[85px] p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
+                        <!-- Cards rendered dynamically -->
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-3">
+                    <button id="checkBtn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black text-base px-7 py-3 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> 驗證組合
+                    </button>
+                    <button id="nextBtn" class="hidden bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-base px-7 py-3 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                        進入下一題 <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- 成語填空放置板 -->
-            <div class="bg-white/95 border-4 border-emerald-100 p-7 rounded-3xl shadow-xl backdrop-blur">
-                <div class="text-xs font-black text-emerald-600 tracking-wider mb-2 text-center uppercase">Sentence Context</div>
-                <div id="idiomSentenceBox" class="text-xl md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
-                    <!-- 動態渲染帶有括號槽位的句子 -->
+            <!-- 子模組 B：成語情境挑戰 -->
+            <div id="subSectionIdiom" class="hidden flex flex-col gap-5">
+                <div class="bg-white/95 border-3 border-emerald-200 p-5 rounded-3xl shadow-md">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center gap-3">
+                            <span id="idiomLessonBadge" class="bg-emerald-500 text-white font-black px-4 py-1.5 rounded-xl text-base shadow-sm">
+                                第 1 課
+                            </span>
+                            <h2 id="idiomQuestionTitle" class="text-xl font-black text-slate-800">
+                                成語情境精準選詞
+                            </h2>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2 bg-emerald-50 px-3.5 py-1.5 rounded-2xl border border-emerald-200">
+                                <span class="text-xs font-black text-emerald-700">進度</span>
+                                <div id="idiomProgressStars" class="flex gap-1">
+                                    <span class="i-star text-slate-300 text-base transition-all"><i class="fa-solid fa-star"></i></span>
+                                    <span class="i-star text-slate-300 text-base transition-all"><i class="fa-solid fa-star"></i></span>
+                                    <span class="i-star text-slate-300 text-base transition-all"><i class="fa-solid fa-star"></i></span>
+                                </div>
+                                <span id="idiomProgressText" class="text-xs font-black text-emerald-900 ml-1">第 1/3 題</span>
+                            </div>
+                            <span class="text-slate-500 font-bold text-sm">成語得分：<strong id="idiomScoreText" class="text-xl text-emerald-600 font-black">0</strong></span>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50/80 border border-emerald-100 p-3 rounded-2xl flex items-center justify-between">
+                        <span class="text-xs md:text-sm font-bold text-emerald-800">🎯 閱讀情境，選出最恰當的成語：</span>
+                        <button id="idiomHintBtn" class="text-xs bg-white text-emerald-700 border border-emerald-300 px-3 py-1 rounded-xl font-bold hover:bg-emerald-100">
+                            <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> 查看錦囊
+                        </button>
+                    </div>
                 </div>
 
-                <div id="idiomMessageBanner" class="hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
-                    <span id="idiomMessageText"></span>
+                <div class="bg-white/95 border-4 border-emerald-100 p-6 md:p-7 rounded-3xl shadow-xl backdrop-blur">
+                    <div id="idiomSentenceBox" class="text-lg md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
+                        <!-- 動態渲染帶有括號槽位的句子 -->
+                    </div>
+
+                    <div id="idiomMessageBanner" class="hidden p-3 md:p-4 rounded-2xl text-center font-black text-sm md:text-base transition-all border-2">
+                        <span id="idiomMessageText"></span>
+                    </div>
+                </div>
+
+                <div class="bg-white/90 border-2 border-emerald-200 p-4 md:p-5 rounded-3xl shadow-sm">
+                    <h3 class="text-slate-700 font-black text-sm mb-3 text-center">
+                        👇 請點選最符合情境的成語卡片：
+                    </h3>
+                    <div id="idiomOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <!-- 4 個選項按鈕 -->
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button id="idiomNextBtn" class="hidden bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-base px-8 py-3 rounded-2xl shadow-lg transition active:scale-95 flex items-center gap-2">
+                        進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- 成語四選一卡片池 -->
-            <div class="bg-white/90 border-2 border-emerald-200 p-5 rounded-3xl shadow-sm">
-                <h3 class="text-slate-700 font-black text-base mb-3 text-center">
-                    👇 請點選最符合情境的成語卡片：
-                </h3>
-                <div id="idiomOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- 動態生成 4 個馬卡龍成語選項按鈕 -->
+            <!-- 子模組 C：修辭辨析擂台 -->
+            <div id="subSectionRhetoric" class="hidden flex flex-col gap-5">
+                <div class="bg-white/95 border-3 border-amber-200 p-5 rounded-3xl shadow-md">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center gap-3">
+                            <span id="rhetoricBadge" class="bg-amber-500 text-white font-black px-4 py-1.5 rounded-xl text-base shadow-sm">
+                                第 1 題
+                            </span>
+                            <h2 class="text-xl font-black text-slate-800">
+                                1-6 課五大核心修辭大考驗
+                            </h2>
+                        </div>
+                        <span class="text-slate-500 font-bold text-sm">修辭得分：<strong id="rhetoricScoreText" class="text-xl text-amber-500 font-black">0</strong></span>
+                    </div>
+                    <div class="bg-amber-50/80 border border-amber-200 p-2.5 rounded-2xl text-xs md:text-sm font-bold text-amber-900">
+                        💡 涵蓋【譬喻】、【轉化（擬人/擬物）】、【映襯】、【設問】與【引用】等重要修辭！
+                    </div>
+                </div>
+
+                <div class="bg-white/95 border-4 border-amber-100 p-6 md:p-7 rounded-3xl shadow-xl backdrop-blur">
+                    <div id="rhetoricSentenceBox" class="text-lg md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
+                        <!-- 動態渲染修辭題目句子 -->
+                    </div>
+
+                    <div id="rhetoricMessageBanner" class="hidden p-3 md:p-4 rounded-2xl text-center font-black text-sm md:text-base transition-all border-2">
+                        <span id="rhetoricMessageText"></span>
+                    </div>
+                </div>
+
+                <div class="bg-white/90 border-2 border-amber-200 p-4 md:p-5 rounded-3xl shadow-sm">
+                    <h3 class="text-slate-700 font-black text-sm mb-3 text-center">
+                        👇 請點選該句子運用的修辭手法：
+                    </h3>
+                    <div id="rhetoricOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <!-- 修辭選項 -->
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button id="rhetoricNextBtn" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-base px-8 py-3 rounded-2xl shadow-lg transition active:scale-95 flex items-center gap-2">
+                        進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex justify-center gap-4">
-                <button id="idiomNextBtn" class="hidden bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
-                </button>
+            <!-- 子模組 D：字詞火眼金睛 -->
+            <div id="subSectionWord" class="hidden flex flex-col gap-5">
+                <div class="bg-white/95 border-3 border-rose-200 p-5 rounded-3xl shadow-md">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center gap-3">
+                            <span id="wordBadge" class="bg-rose-500 text-white font-black px-4 py-1.5 rounded-xl text-base shadow-sm">
+                                第 1 題
+                            </span>
+                            <h2 id="wordTypeTitle" class="text-xl font-black text-slate-800">
+                                錯別字找碴 ✕ 多音字破音辨析
+                            </h2>
+                        </div>
+                        <span class="text-slate-500 font-bold text-sm">偵探得分：<strong id="wordScoreText" class="text-xl text-rose-500 font-black">0</strong></span>
+                    </div>
+                    <div class="bg-rose-50/80 border border-rose-200 p-2.5 rounded-2xl text-xs md:text-sm font-bold text-rose-900">
+                        🔍 提示：仔細看清句子中的字形與發音陷阱，選出正確答案！
+                    </div>
+                </div>
+
+                <div class="bg-white/95 border-4 border-rose-100 p-6 md:p-7 rounded-3xl shadow-xl backdrop-blur">
+                    <div id="wordSentenceBox" class="text-lg md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
+                        <!-- 動態渲染字詞題目 -->
+                    </div>
+
+                    <div id="wordMessageBanner" class="hidden p-3 md:p-4 rounded-2xl text-center font-black text-sm md:text-base transition-all border-2">
+                        <span id="wordMessageText"></span>
+                    </div>
+                </div>
+
+                <div class="bg-white/90 border-2 border-rose-200 p-4 md:p-5 rounded-3xl shadow-sm">
+                    <h3 id="wordOptionHeading" class="text-slate-700 font-black text-sm mb-3 text-center">
+                        👇 請點選正確答案：
+                    </h3>
+                    <div id="wordOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <!-- 選項卡片 -->
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button id="wordNextBtn" class="hidden bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-black text-base px-8 py-3 rounded-2xl shadow-lg transition active:scale-95 flex items-center gap-2">
+                        進入下一題 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- ==================== 3. 🎭 修辭文法擂台區域 ==================== -->
-        <div id="rhetoricSection" class="hidden flex flex-col gap-5">
-            <div class="bg-white/95 border-3 border-amber-200 p-5 rounded-3xl shadow-md">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
-                    <div class="flex items-center gap-3">
-                        <span id="rhetoricBadge" class="bg-amber-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
-                            第 1 題
-                        </span>
-                        <h2 class="text-xl font-black text-slate-800">
-                            1-6 課五大核心修辭大考驗
-                        </h2>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-slate-500 font-bold text-sm">修辭得分：<strong id="rhetoricScoreText" class="text-2xl text-amber-500 font-black">0</strong></span>
-                    </div>
-                </div>
-                <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-2xl text-sm font-bold text-amber-900">
-                    💡 提示：包含【譬喻】、【轉化（擬人/擬物）】、【映襯】、【設問】與【引用】等重要修辭！
-                </div>
-            </div>
-
-            <div class="bg-white/95 border-4 border-amber-100 p-7 rounded-3xl shadow-xl backdrop-blur">
-                <div class="text-xs font-black text-amber-600 tracking-wider mb-2 text-center uppercase">Sentence Rhetoric</div>
-                <div id="rhetoricSentenceBox" class="text-xl md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
-                    <!-- 動態渲染修辭題目句子 -->
-                </div>
-
-                <div id="rhetoricMessageBanner" class="hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
-                    <span id="rhetoricMessageText"></span>
-                </div>
-            </div>
-
-            <div class="bg-white/90 border-2 border-amber-200 p-5 rounded-3xl shadow-sm">
-                <h3 class="text-slate-700 font-black text-base mb-3 text-center">
-                    👇 請點選該句子運用的修辭手法：
-                </h3>
-                <div id="rhetoricOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- 動態渲染修辭選項 -->
-                </div>
-            </div>
-
-            <div class="flex justify-center gap-4">
-                <button id="rhetoricNextBtn" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- ==================== 4. 🔍 字詞火眼金睛區域 ==================== -->
-        <div id="wordSection" class="hidden flex flex-col gap-5">
-            <div class="bg-white/95 border-3 border-rose-200 p-5 rounded-3xl shadow-md">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-2">
-                    <div class="flex items-center gap-3">
-                        <span id="wordBadge" class="bg-rose-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
-                            第 1 題
-                        </span>
-                        <h2 id="wordTypeTitle" class="text-xl font-black text-slate-800">
-                            錯別字找碴 ✕ 多音字破音辨析
-                        </h2>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-slate-500 font-bold text-sm">偵探得分：<strong id="wordScoreText" class="text-2xl text-rose-500 font-black">0</strong></span>
-                    </div>
-                </div>
-                <div class="bg-rose-50/80 border border-rose-200 p-3 rounded-2xl text-sm font-bold text-rose-900">
-                    🔍 任務提示：仔細看清句子中的字形與發音陷阱，選出正確的答案！
-                </div>
-            </div>
-
-            <div class="bg-white/95 border-4 border-rose-100 p-7 rounded-3xl shadow-xl backdrop-blur">
-                <div id="wordQuestionTag" class="text-xs font-black text-rose-600 tracking-wider mb-2 text-center uppercase">Word Detective</div>
-                <div id="wordSentenceBox" class="text-xl md:text-2xl font-black text-slate-800 text-center leading-relaxed mb-6 px-4">
-                    <!-- 動態渲染字詞題目 -->
-                </div>
-
-                <div id="wordMessageBanner" class="hidden p-4 rounded-2xl text-center font-black text-base transition-all border-2">
-                    <span id="wordMessageText"></span>
-                </div>
-            </div>
-
-            <div class="bg-white/90 border-2 border-rose-200 p-5 rounded-3xl shadow-sm">
-                <h3 id="wordOptionHeading" class="text-slate-700 font-black text-base mb-3 text-center">
-                    👇 請點選正確答案：
-                </h3>
-                <div id="wordOptionPool" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- 動態渲染選項卡片 -->
-                </div>
-            </div>
-
-            <div class="flex justify-center gap-4">
-                <button id="wordNextBtn" class="hidden bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center gap-2">
-                    進入下一題 <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- ==================== 5. 成語資料庫查詢字典 ==================== -->
+        <!-- ==================== 3. 成語百寶箱資料庫查詢字典 ==================== -->
         <div id="dictSection" class="hidden flex flex-col gap-4">
             <div class="bg-white/95 border-3 border-sky-200 p-5 rounded-3xl shadow-md">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <span class="bg-sky-500 text-white font-black px-4 py-1.5 rounded-xl text-lg shadow-sm">
+                        <span class="bg-sky-500 text-white font-black px-4 py-1.5 rounded-xl text-base shadow-sm">
                             成語檢索
                         </span>
                         <h2 class="text-xl font-black text-slate-800">
@@ -429,7 +506,6 @@
                     </span>
                 </div>
 
-                <!-- 課次快速篩選濾鏡 -->
                 <div class="flex flex-wrap gap-2 mt-3" id="dictFilterBtns">
                     <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-sky-500 text-white" data-lesson="all">全部成語 (38)</button>
                     <button class="dict-filter-btn px-4 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-sky-100" data-lesson="1">第 1 課 (8)</button>
@@ -441,7 +517,6 @@
                 </div>
             </div>
 
-            <!-- 成語卡片清單展示區 -->
             <div id="dictCardList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- 由 JS 動態注入 38 組成語資料 -->
             </div>
@@ -502,29 +577,453 @@
         </div>
     </div>
 
-    <!-- 關卡通關彈窗 -->
+    <!-- 通用過關結算彈窗 -->
     <div id="clearModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full border-4 border-purple-200 shadow-2xl text-center flex flex-col items-center pop-animation">
-            <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-4xl mb-4 shadow-inner">
+        <div class="bg-white rounded-3xl p-7 md:p-8 max-w-md w-full border-4 border-pink-200 shadow-2xl text-center flex flex-col items-center pop-animation">
+            <div id="modalIconBox" class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 text-4xl mb-4 shadow-inner">
                 <i class="fa-solid fa-crown"></i>
             </div>
-            <h3 id="modalTitle" class="text-2xl font-black text-slate-800 mb-2">🎉 恭喜完成本關 3 道題目！</h3>
+            <h3 id="modalTitle" class="text-2xl font-black text-slate-800 mb-2">🎉 恭喜通關！</h3>
             <p id="modalMsg" class="text-slate-600 font-bold mb-6">
-                太厲害了！你已經完全掌握此結構的詞性搭配！
+                太厲害了！你已經順利完成了本單元的所有挑戰！
             </p>
-            <button id="modalNextLevelBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-black text-lg py-3.5 rounded-2xl shadow-lg transition active:scale-95">
-                解鎖並進入下一關 🚀
+            <button id="modalNextLevelBtn" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-lg py-3.5 rounded-2xl shadow-lg transition active:scale-95">
+                挑戰下一關 🚀
             </button>
         </div>
     </div>
 
     <footer class="mt-6 text-center text-slate-400 text-xs font-bold">
-        國小六年級 國語短語結構 ✕ 1-6課成語資料庫 ｜ 馬卡龍色系全功能教學互動特訓 App
+        國小六年級 國語 1-6 課全方位考前特訓 ｜ 詞語配對消消樂 ✕ 語法特訓大擂台 ✕ 成語百寶箱
     </footer>
 
     <script>
         /* ========================================================
-           1. 成語完整資料庫 (38 組完整收錄)
+           0. 原生 Web Audio API 合成音效（完全免外部音訊依賴）
+           ======================================================== */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const now = audioCtx.currentTime;
+
+            if (type === 'match-success') {
+                // 清脆糖果雙音 (E6 -> G#6)
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1318.51, now);
+                osc.frequency.exponentialRampToValueAtTime(1661.22, now + 0.12);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'error') {
+                // 輕短低音提示
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'select') {
+                // 啵輕巧點擊音
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+        }
+
+        /* ========================================================
+           1. 1-6 課生字重點詞語配對資料庫（每課精確抽 10 組，絕不與四字成語混淆）
+           ======================================================== */
+        const matchDataByLesson = [
+            {
+                lesson: 1,
+                title: "第 1 課《遇見自己》",
+                pairs: [
+                    { id: 1, term: "漣漪", definition: "水面上細微的波紋。" },
+                    { id: 2, term: "皺巴巴", definition: "皺紋多，不平整。" },
+                    { id: 3, term: "捉弄", definition: "戲弄，對人開玩笑。" },
+                    { id: 4, term: "真摯", definition: "真實誠懇。" },
+                    { id: 5, term: "註定", definition: "上天早已決定，非人力所能更易。" },
+                    { id: 6, term: "儲存", definition: "積聚存放。" },
+                    { id: 7, term: "勉勵", definition: "勸勉鼓勵。" },
+                    { id: 8, term: "邁入", definition: "跨入、進入。" },
+                    { id: 9, term: "迷惘", definition: "困惑而不知所措。" },
+                    { id: 10, term: "永恆", definition: "恆久不變。" }
+                ]
+            },
+            {
+                lesson: 2,
+                title: "第 2 課《為什麼大家不理我？》",
+                pairs: [
+                    { id: 1, term: "眼眶", definition: "眼窩的四周。" },
+                    { id: 2, term: "固執", definition: "堅持己見，不肯變通。" },
+                    { id: 3, term: "辯論", definition: "各持不同的意見主張相互論爭。" },
+                    { id: 4, term: "慘白", definition: "蒼白。" },
+                    { id: 5, term: "憤慨", definition: "憤怒而激動。" },
+                    { id: 6, term: "狠狠的", definition: "激烈的、重重的。" },
+                    { id: 7, term: "擔憂", definition: "擔心、憂慮。" },
+                    { id: 8, term: "鼻涕", definition: "鼻腔內分泌的黏液。" },
+                    { id: 9, term: "慰問", definition: "安慰問候。" },
+                    { id: 10, term: "寂寞", definition: "孤單冷清。" }
+                ]
+            },
+            {
+                lesson: 3,
+                title: "第 3 課《孔子說的話》",
+                pairs: [
+                    { id: 1, term: "婆娑", definition: "枝葉繁茂而隨風搖曳的樣子。" },
+                    { id: 2, term: "鏗鏘", definition: "形容聲音清脆響亮。" },
+                    { id: 3, term: "撫慰", definition: "安撫慰勉。" },
+                    { id: 4, term: "杏壇", definition: "孔子授徒講學的地方，今教育界通稱。" },
+                    { id: 5, term: "授徒", definition: "招收學生，傳授學問或技藝。" },
+                    { id: 6, term: "精鍊", definition: "簡潔精要。" },
+                    { id: 7, term: "分辨", definition: "辨別。" },
+                    { id: 8, term: "警惕", definition: "心生警覺而加以戒備。" },
+                    { id: 9, term: "智慧", definition: "聰明才智。" },
+                    { id: 10, term: "述", definition: "說明、記錄。" }
+                ]
+            },
+            {
+                lesson: 4,
+                title: "第 4 課《向大自然學習》",
+                pairs: [
+                    { id: 1, term: "奧妙", definition: "深奧奇妙。" },
+                    { id: 2, term: "仿生學", definition: "模仿生物原理並創造新科技的學問。" },
+                    { id: 3, term: "鋸齒", definition: "像鋸子一般的銳齒。" },
+                    { id: 4, term: "擴張", definition: "擴大伸張。" },
+                    { id: 5, term: "奈米", definition: "表示長度的單位，等於千分之一微米。" },
+                    { id: 6, term: "結構", definition: "各組織成分的搭配、排列或構造。" },
+                    { id: 7, term: "憑藉", definition: "依賴、假託。" },
+                    { id: 8, term: "巨無霸", definition: "形容體積高大的人或物。" },
+                    { id: 9, term: "翹", definition: "物體突起或高起。" },
+                    { id: 10, term: "垂直", definition: "兩線或兩面以直角相交。" }
+                ]
+            },
+            {
+                lesson: 5,
+                title: "第 5 課《樹的聯想》",
+                pairs: [
+                    { id: 1, term: "泥濘", definition: "雨後水與土混雜而黏溼的樣子。" },
+                    { id: 2, term: "急躁", definition: "急促焦躁。" },
+                    { id: 3, term: "霎時", definition: "指極短的時間。" },
+                    { id: 4, term: "呈現", definition: "出現、顯現。" },
+                    { id: 5, term: "淘氣", definition: "頑皮、搗蛋，通常指孩童而言。" },
+                    { id: 6, term: "樹蔭", definition: "樹下日光照不到的地方。" },
+                    { id: 7, term: "道賀", definition: "用言語向人祝賀。" },
+                    { id: 8, term: "遮陽", definition: "阻擋陽光的照射。" },
+                    { id: 9, term: "踏實", definition: "切實認真。" },
+                    { id: 10, term: "庇護", definition: "保護、維護。" }
+                ]
+            },
+            {
+                lesson: 6,
+                title: "第 6 課《善用自嘲，展現幽默》",
+                pairs: [
+                    { id: 1, term: "自嘲", definition: "以言辭嘲笑自己。" },
+                    { id: 2, term: "揶揄", definition: "嘲笑、戲弄。" },
+                    { id: 3, term: "僵持", definition: "相持不讓而無所進展。" },
+                    { id: 4, term: "調侃", definition: "揶揄、嘲諷、挖苦。" },
+                    { id: 5, term: "批判", definition: "評論判斷。" },
+                    { id: 6, term: "倘若", definition: "如果、假使。" },
+                    { id: 7, term: "嘲諷", definition: "嘲笑諷刺。" },
+                    { id: 8, term: "貶低", definition: "刻意降低對人或事物的評價。" },
+                    { id: 9, term: "坦然", definition: "內心安寧舒泰的樣子。" },
+                    { id: 10, term: "窘境", definition: "尷尬、難堪的境地。" }
+                ]
+            }
+        ];
+
+        /* ========================================================
+           2. 詞語配對消消樂 控制邏輯
+           ======================================================== */
+        let currentMatchLessonIdx = 0;
+        let selectedTermCard = null;
+        let selectedDefCard = null;
+        let matchScore = 0;
+        let matchedCount = 0;
+
+        const matchLessonBtns = document.getElementById('matchLessonBtns');
+        const matchLessonTitle = document.getElementById('matchLessonTitle');
+        const matchProgressCount = document.getElementById('matchProgressCount');
+        const matchScoreText = document.getElementById('matchScoreText');
+        const resetMatchBtn = document.getElementById('resetMatchBtn');
+        const termCardContainer = document.getElementById('termCardContainer');
+        const defCardContainer = document.getElementById('defCardContainer');
+
+        function initMatchLessonNav() {
+            matchLessonBtns.innerHTML = '';
+            matchDataByLesson.forEach((l, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-1.5 rounded-xl font-black text-xs md:text-sm transition shadow-sm border-2 ${
+                    idx === currentMatchLessonIdx 
+                    ? 'bg-pink-500 text-white border-pink-400 scale-105' 
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-pink-50'
+                }`;
+                btn.textContent = `第 ${l.lesson} 課`;
+                btn.addEventListener('click', () => {
+                    currentMatchLessonIdx = idx;
+                    initMatchLessonNav();
+                    loadMatchLesson();
+                });
+                matchLessonBtns.appendChild(btn);
+            });
+        }
+
+        function loadMatchLesson() {
+            initMatchLessonNav();
+            const data = matchDataByLesson[currentMatchLessonIdx];
+            matchLessonTitle.textContent = `${data.title} 詞語連連看`;
+            matchedCount = 0;
+            matchProgressCount.textContent = `0 / ${data.pairs.length} 組`;
+            selectedTermCard = null;
+            selectedDefCard = null;
+
+            // 打亂左側詞語與右側解釋
+            const shuffledTerms = [...data.pairs].sort(() => Math.random() - 0.5);
+            const shuffledDefs = [...data.pairs].sort(() => Math.random() - 0.5);
+
+            termCardContainer.innerHTML = '';
+            defCardContainer.innerHTML = '';
+
+            shuffledTerms.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "match-card term-item bg-pink-50/90 border-2 border-pink-200 px-4 py-3 rounded-2xl font-black text-base md:text-lg text-pink-950 shadow-sm flex items-center justify-between";
+                card.dataset.id = item.id;
+                card.innerHTML = `
+                    <span>🌸 ${item.term}</span>
+                    <i class="fa-regular fa-circle-dot text-pink-300 text-xs"></i>
+                `;
+                card.addEventListener('click', () => handleTermClick(card, item.id));
+                termCardContainer.appendChild(card);
+            });
+
+            shuffledDefs.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "match-card def-item bg-sky-50/90 border-2 border-sky-200 px-4 py-3 rounded-2xl font-black text-xs md:text-sm text-sky-950 shadow-sm leading-relaxed flex items-center justify-between";
+                card.dataset.id = item.id;
+                card.innerHTML = `
+                    <span>💡 ${item.definition}</span>
+                    <i class="fa-regular fa-square text-sky-300 text-xs ml-2"></i>
+                `;
+                card.addEventListener('click', () => handleDefClick(card, item.id));
+                defCardContainer.appendChild(card);
+            });
+        }
+
+        function handleTermClick(card, id) {
+            playSound('select');
+            if (selectedTermCard) {
+                selectedTermCard.classList.remove('selected-term');
+            }
+            selectedTermCard = card;
+            selectedTermCard.classList.add('selected-term');
+            checkMatchPair();
+        }
+
+        function handleDefClick(card, id) {
+            playSound('select');
+            if (selectedDefCard) {
+                selectedDefCard.classList.remove('selected-def');
+            }
+            selectedDefCard = card;
+            selectedDefCard.classList.add('selected-def');
+            checkMatchPair();
+        }
+
+        function checkMatchPair() {
+            if (!selectedTermCard || !selectedDefCard) return;
+
+            const termId = selectedTermCard.dataset.id;
+            const defId = selectedDefCard.dataset.id;
+
+            if (termId === defId) {
+                // 配對成功！
+                playSound('match-success');
+                matchScore += 10;
+                matchedCount++;
+                matchScoreText.textContent = matchScore;
+                matchProgressCount.textContent = `${matchedCount} / 10 組`;
+
+                // 加上粉綠發光與縮小消除動畫
+                selectedTermCard.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-900', 'matched-out');
+                selectedDefCard.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-900', 'matched-out');
+
+                confetti({
+                    particleCount: 50,
+                    spread: 50,
+                    origin: { y: 0.6 }
+                });
+
+                selectedTermCard = null;
+                selectedDefCard = null;
+
+                // 檢查是否 10 組全數消除
+                if (matchedCount === 10) {
+                    setTimeout(() => {
+                        modalIconBox.className = "w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 text-4xl mb-4 shadow-inner";
+                        modalIconBox.innerHTML = '<i class="fa-solid fa-cake-candles"></i>';
+                        modalTitle.textContent = `🎉 恭喜完成第 ${matchDataByLesson[currentMatchLessonIdx].lesson} 課 10 組詞語配對！`;
+                        modalMsg.textContent = `太強了！本課的 10 個核心重點生字詞語與語意情境你已經全部爛熟於心！`;
+                        modalNextLevelBtn.textContent = "挑戰下一課詞語 🚀";
+                        clearModal.classList.remove('hidden');
+
+                        modalNextLevelBtn.onclick = () => {
+                            clearModal.classList.add('hidden');
+                            if (currentMatchLessonIdx < matchDataByLesson.length - 1) {
+                                currentMatchLessonIdx++;
+                            } else {
+                                currentMatchLessonIdx = 0;
+                            }
+                            loadMatchLesson();
+                        };
+                    }, 500);
+                }
+            } else {
+                // 配對錯誤
+                playSound('error');
+                selectedTermCard.classList.add('shake-animation');
+                selectedDefCard.classList.add('shake-animation');
+
+                setTimeout(() => {
+                    if (selectedTermCard) {
+                        selectedTermCard.classList.remove('shake-animation', 'selected-term');
+                        selectedTermCard = null;
+                    }
+                    if (selectedDefCard) {
+                        selectedDefCard.classList.remove('shake-animation', 'selected-def');
+                        selectedDefCard = null;
+                    }
+                }, 400);
+            }
+        }
+
+        resetMatchBtn.addEventListener('click', loadMatchLesson);
+
+        /* ========================================================
+           3. 第一層 / 第二層 導航狀態控制 (雙階導覽)
+           ======================================================== */
+        let activeMainTab = 'match'; // 'match' | 'grammar' | 'dict'
+        let activeGrammarSubTab = 'phrase'; // 'phrase' | 'idiom' | 'rhetoric' | 'word'
+
+        const mainTabMatch = document.getElementById('mainTabMatch');
+        const mainTabGrammar = document.getElementById('mainTabGrammar');
+        const mainTabDict = document.getElementById('mainTabDict');
+
+        const matchSection = document.getElementById('matchSection');
+        const grammarSection = document.getElementById('grammarSection');
+        const dictSection = document.getElementById('dictSection');
+
+        const matchLessonNavWrapper = document.getElementById('matchLessonNavWrapper');
+        const grammarSubTabWrapper = document.getElementById('grammarSubTabWrapper');
+
+        const subTabPhrase = document.getElementById('subTabPhrase');
+        const subTabIdiom = document.getElementById('subTabIdiom');
+        const subTabRhetoric = document.getElementById('subTabRhetoric');
+        const subTabWord = document.getElementById('subTabWord');
+
+        const subSectionPhrase = document.getElementById('subSectionPhrase');
+        const subSectionIdiom = document.getElementById('subSectionIdiom');
+        const subSectionRhetoric = document.getElementById('subSectionRhetoric');
+        const subSectionWord = document.getElementById('subSectionWord');
+
+        const phraseNavWrapper = document.getElementById('phraseNavWrapper');
+        const idiomNavWrapper = document.getElementById('idiomNavWrapper');
+
+        function switchMainTab(tab) {
+            activeMainTab = tab;
+            [mainTabMatch, mainTabGrammar, mainTabDict].forEach(b => {
+                b.className = "main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
+            });
+
+            matchSection.classList.add('hidden');
+            grammarSection.classList.add('hidden');
+            dictSection.classList.add('hidden');
+            matchLessonNavWrapper.classList.add('hidden');
+            grammarSubTabWrapper.classList.add('hidden');
+
+            if (tab === 'match') {
+                mainTabMatch.className = "main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-pink-500 text-white border-pink-400 scale-105";
+                matchSection.classList.remove('hidden');
+                matchLessonNavWrapper.classList.remove('hidden');
+                loadMatchLesson();
+            } else if (tab === 'grammar') {
+                mainTabGrammar.className = "main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-600 text-white border-purple-400 scale-105";
+                grammarSection.classList.remove('hidden');
+                grammarSubTabWrapper.classList.remove('hidden');
+                switchGrammarSubTab(activeGrammarSubTab);
+            } else if (tab === 'dict') {
+                mainTabDict.className = "main-tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-sky-500 text-white border-sky-400 scale-105";
+                dictSection.classList.remove('hidden');
+                renderDictCards('all', '');
+            }
+        }
+
+        function switchGrammarSubTab(subTab) {
+            activeGrammarSubTab = subTab;
+            [subTabPhrase, subTabIdiom, subTabRhetoric, subTabWord].forEach(b => {
+                b.className = "grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-white/90 text-slate-700 hover:bg-slate-50";
+            });
+
+            subSectionPhrase.classList.add('hidden');
+            subSectionIdiom.classList.add('hidden');
+            subSectionRhetoric.classList.add('hidden');
+            subSectionWord.classList.add('hidden');
+
+            phraseNavWrapper.classList.add('hidden');
+            idiomNavWrapper.classList.add('hidden');
+
+            if (subTab === 'phrase') {
+                subTabPhrase.className = "grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-purple-600 text-white shadow-sm";
+                subSectionPhrase.classList.remove('hidden');
+                phraseNavWrapper.classList.remove('hidden');
+                loadPhraseLevel();
+            } else if (subTab === 'idiom') {
+                subTabIdiom.className = "grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-emerald-600 text-white shadow-sm";
+                subSectionIdiom.classList.remove('hidden');
+                idiomNavWrapper.classList.remove('hidden');
+                loadIdiomQuestion();
+            } else if (subTab === 'rhetoric') {
+                subTabRhetoric.className = "grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-amber-500 text-white shadow-sm";
+                subSectionRhetoric.classList.remove('hidden');
+                loadRhetoricQuestion();
+            } else if (subTab === 'word') {
+                subTabWord.className = "grammar-sub-btn px-4 py-2 rounded-xl text-sm font-black transition bg-rose-500 text-white shadow-sm";
+                subSectionWord.classList.remove('hidden');
+                loadWordQuestion();
+            }
+        }
+
+        mainTabMatch.addEventListener('click', () => switchMainTab('match'));
+        mainTabGrammar.addEventListener('click', () => switchMainTab('grammar'));
+        mainTabDict.addEventListener('click', () => switchMainTab('dict'));
+
+        subTabPhrase.addEventListener('click', () => switchGrammarSubTab('phrase'));
+        subTabIdiom.addEventListener('click', () => switchGrammarSubTab('idiom'));
+        subTabRhetoric.addEventListener('click', () => switchGrammarSubTab('rhetoric'));
+        subTabWord.addEventListener('click', () => switchGrammarSubTab('word'));
+
+        /* ========================================================
+           4. 成語完整資料庫 (38 組完整收錄)
            ======================================================== */
         const idiomDatabase = [
             // 第一課
@@ -728,81 +1227,11 @@
             }
         ];
 
-        /* 全域導航狀態控制 */
-        let activeTab = 'phrase'; // 'phrase' | 'idiom' | 'rhetoric' | 'word' | 'dict'
+        /* 成語遊戲互動邏輯 */
         let idiomLevelIndex = 0;
         let idiomSubQuestionIndex = 0;
         let idiomScore = 0;
 
-        const tabPhrase = document.getElementById('tabPhrase');
-        const tabIdiom = document.getElementById('tabIdiom');
-        const tabRhetoric = document.getElementById('tabRhetoric');
-        const tabWord = document.getElementById('tabWord');
-        const tabDict = document.getElementById('tabDict');
-
-        const phraseSection = document.getElementById('phraseSection');
-        const idiomSection = document.getElementById('idiomSection');
-        const rhetoricSection = document.getElementById('rhetoricSection');
-        const wordSection = document.getElementById('wordSection');
-        const dictSection = document.getElementById('dictSection');
-
-        const phraseNavWrapper = document.getElementById('phraseNavWrapper');
-        const idiomNavWrapper = document.getElementById('idiomNavWrapper');
-        const rhetoricNavWrapper = document.getElementById('rhetoricNavWrapper');
-        const wordNavWrapper = document.getElementById('wordNavWrapper');
-
-        function switchTab(tabName) {
-            activeTab = tabName;
-            [tabPhrase, tabIdiom, tabRhetoric, tabWord, tabDict].forEach(b => {
-                b.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-50";
-            });
-
-            phraseSection.classList.add('hidden');
-            idiomSection.classList.add('hidden');
-            rhetoricSection.classList.add('hidden');
-            wordSection.classList.add('hidden');
-            dictSection.classList.add('hidden');
-
-            phraseNavWrapper.classList.add('hidden');
-            idiomNavWrapper.classList.add('hidden');
-            rhetoricNavWrapper.classList.add('hidden');
-            wordNavWrapper.classList.add('hidden');
-
-            if (tabName === 'phrase') {
-                tabPhrase.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-purple-500 text-white border-purple-400 scale-105";
-                phraseSection.classList.remove('hidden');
-                phraseNavWrapper.classList.remove('hidden');
-            } else if (tabName === 'idiom') {
-                tabIdiom.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-emerald-500 text-white border-emerald-400 scale-105";
-                idiomSection.classList.remove('hidden');
-                idiomNavWrapper.classList.remove('hidden');
-                loadIdiomQuestion();
-            } else if (tabName === 'rhetoric') {
-                tabRhetoric.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-amber-500 text-white border-amber-400 scale-105";
-                rhetoricSection.classList.remove('hidden');
-                rhetoricNavWrapper.classList.remove('hidden');
-                loadRhetoricQuestion();
-            } else if (tabName === 'word') {
-                tabWord.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-rose-500 text-white border-rose-400 scale-105";
-                wordSection.classList.remove('hidden');
-                wordNavWrapper.classList.remove('hidden');
-                loadWordQuestion();
-            } else if (tabName === 'dict') {
-                tabDict.className = "tab-btn px-5 py-2.5 rounded-2xl font-black text-base transition shadow-sm border-2 bg-sky-500 text-white border-sky-400 scale-105";
-                dictSection.classList.remove('hidden');
-                renderDictCards('all', '');
-            }
-        }
-
-        tabPhrase.addEventListener('click', () => switchTab('phrase'));
-        tabIdiom.addEventListener('click', () => switchTab('idiom'));
-        tabRhetoric.addEventListener('click', () => switchTab('rhetoric'));
-        tabWord.addEventListener('click', () => switchTab('word'));
-        tabDict.addEventListener('click', () => switchTab('dict'));
-
-        /* ========================================================
-           2. 成語遊戲互動邏輯
-           ======================================================== */
         const idiomLessonNavBtns = document.getElementById('idiomLessonNavBtns');
         const idiomLessonBadge = document.getElementById('idiomLessonBadge');
         const idiomSentenceBox = document.getElementById('idiomSentenceBox');
@@ -839,11 +1268,11 @@
             const stars = idiomProgressStars.querySelectorAll('.i-star');
             stars.forEach((star, idx) => {
                 if (idx < idiomSubQuestionIndex) {
-                    star.className = 'i-star text-amber-400 text-lg scale-110';
+                    star.className = 'i-star text-amber-400 text-base scale-110';
                 } else if (idx === idiomSubQuestionIndex) {
-                    star.className = 'i-star text-emerald-500 text-lg animate-pulse';
+                    star.className = 'i-star text-emerald-500 text-base animate-pulse';
                 } else {
-                    star.className = 'i-star text-slate-300 text-lg';
+                    star.className = 'i-star text-slate-300 text-base';
                 }
             });
             idiomProgressText.textContent = `第 ${idiomSubQuestionIndex + 1}/3 題`;
@@ -860,7 +1289,6 @@
             idiomMessageBanner.classList.add('hidden');
             idiomNextBtn.classList.add('hidden');
 
-            // 渲染挖空句子
             const parts = q.sentence.split("（　　）");
             idiomSentenceBox.innerHTML = `
                 ${parts[0]}
@@ -870,7 +1298,6 @@
                 ${parts[1] || ''}
             `;
 
-            // 渲染選項卡片 (打亂順序)
             const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
             idiomOptionPool.innerHTML = '';
 
@@ -895,6 +1322,7 @@
             slot.textContent = selectedOption;
 
             if (selectedOption === question.answer) {
+                playSound('match-success');
                 idiomScore += 10;
                 idiomScoreText.textContent = idiomScore;
 
@@ -907,8 +1335,6 @@
                 });
 
                 showIdiomMessage(`🎉 太優秀了！答對了！【${question.answer}】釋義：${question.hint}`, "success");
-
-                // 禁用選項
                 Array.from(idiomOptionPool.children).forEach(c => c.disabled = true);
 
                 if (idiomSubQuestionIndex < 2) {
@@ -916,6 +1342,8 @@
                     idiomNextBtn.classList.remove('hidden');
                 } else {
                     setTimeout(() => {
+                        modalIconBox.className = "w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 text-4xl mb-4 shadow-inner";
+                        modalIconBox.innerHTML = '<i class="fa-solid fa-award"></i>';
                         modalTitle.textContent = `🎉 恭喜通過第 ${idiomLevels[idiomLevelIndex].lesson} 課成語挑戰！`;
                         modalMsg.textContent = `太強了！你已經順利解開本課 3 道成語情境難題，詞義與語境掌握得非常熟練！`;
                         modalNextLevelBtn.textContent = "挑戰下一課成語 🚀";
@@ -933,6 +1361,7 @@
                     }, 650);
                 }
             } else {
+                playSound('error');
                 slot.className = "inline-flex items-center justify-center min-w-[120px] px-3 py-1 bg-rose-400 text-white rounded-xl font-black shadow-md mx-1 shake-animation";
 
                 const dbItem = idiomDatabase.find(item => item.idiom === selectedOption);
@@ -966,13 +1395,12 @@
         });
 
         /* ========================================================
-           3. 成語辭典資料庫檢索邏輯
+           5. 成語百寶箱字典檢索邏輯
            ======================================================== */
         const dictCardList = document.getElementById('dictCardList');
         const dictSearchInput = document.getElementById('dictSearchInput');
         const dictFilterBtns = document.querySelectorAll('.dict-filter-btn');
 
-        // 成語放大彈窗元素
         const idiomDetailModal = document.getElementById('idiomDetailModal');
         const closeDetailModalBtn = document.getElementById('closeDetailModalBtn');
         const detailConfirmBtn = document.getElementById('detailConfirmBtn');
@@ -984,6 +1412,7 @@
         const detailExample = document.getElementById('detailExample');
 
         function openIdiomDetail(item) {
+            playSound('select');
             const lessonBadgeColors = {
                 1: 'bg-blue-100 text-blue-800 border-blue-200',
                 2: 'bg-emerald-100 text-emerald-800 border-emerald-200',
@@ -1105,7 +1534,7 @@
         });
 
         /* ========================================================
-           3-B. 🎭 修辭文法擂台邏輯
+           6. 修辭辨析擂台邏輯
            ======================================================== */
         const rhetoricQuestions = [
             {
@@ -1177,11 +1606,13 @@
         function checkRhetoricAnswer(selected, q) {
             Array.from(rhetoricOptionPool.children).forEach(c => c.disabled = true);
             if (selected === q.answer) {
+                playSound('match-success');
                 rhetoricScore += 20;
                 rhetoricScoreText.textContent = rhetoricScore;
                 confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
                 showRhetoricMessage(`🎉 答對了！【${q.answer}】解析：${q.explanation}`, "success");
             } else {
+                playSound('error');
                 showRhetoricMessage(`⚠️ 答錯了！正確答案是【${q.answer}】。解析：${q.explanation}`, "error");
             }
             if (rhetoricIdx < rhetoricQuestions.length - 1) {
@@ -1205,7 +1636,7 @@
         });
 
         /* ========================================================
-           3-C. 🔍 字詞火眼金睛邏輯（錯別字找碴 ✕ 一字多音）
+           7. 字詞火眼金睛邏輯（錯別字找碴 ✕ 一字多音）
            ======================================================== */
         const wordQuestions = [
             {
@@ -1295,11 +1726,13 @@
         function checkWordAnswer(selected, q) {
             Array.from(wordOptionPool.children).forEach(c => c.disabled = true);
             if (selected === q.answer) {
+                playSound('match-success');
                 wordScore += 20;
                 wordScoreText.textContent = wordScore;
                 confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
                 showWordMessage(`🎉 太厲害了！完全正確！【${q.answer}】解析：${q.explanation}`, "success");
             } else {
+                playSound('error');
                 showWordMessage(`⚠️ 答錯囉！正確答案是【${q.answer}】。解析：${q.explanation}`, "error");
             }
             if (wordIdx < wordQuestions.length - 1) {
@@ -1323,7 +1756,7 @@
         });
 
         /* ========================================================
-           4. 短語完整關卡題庫與邏輯（講義 8 大結構 + 核心句型，每關 3 題）
+           8. 短語結構拼圖邏輯（講義 8 大結構 + 核心句型，每關 3 題）
            ======================================================== */
         const phraseLevels = [
             {
@@ -1875,7 +2308,7 @@
         let currentLevelIdx = 0;
         let currentSubQuestionIdx = 0;
         let phraseScore = 0;
-        let selectedSlots = {}; // { slotIndex: cardText }
+        let selectedSlots = {};
 
         const levelNavBtns = document.getElementById('levelNavBtns');
         const levelBadge = document.getElementById('levelBadge');
@@ -1894,6 +2327,7 @@
         const resetBtn = document.getElementById('resetBtn');
 
         const clearModal = document.getElementById('clearModal');
+        const modalIconBox = document.getElementById('modalIconBox');
         const modalTitle = document.getElementById('modalTitle');
         const modalMsg = document.getElementById('modalMsg');
         const modalNextLevelBtn = document.getElementById('modalNextLevelBtn');
@@ -1902,9 +2336,9 @@
             levelNavBtns.innerHTML = '';
             phraseLevels.forEach((lvl, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `px-3 py-1.5 rounded-xl font-black text-xs md:text-sm transition shadow-sm border-2 ${
+                btn.className = `px-3 py-1.5 rounded-xl font-black text-xs transition shadow-sm border-2 ${
                     idx === currentLevelIdx
-                    ? 'bg-purple-500 text-white border-purple-400 scale-105'
+                    ? 'bg-purple-600 text-white border-purple-400 scale-105'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'
                 }`;
                 btn.textContent = `${lvl.badge}：${lvl.name}`;
@@ -1922,11 +2356,11 @@
             const stars = subQuestionStars.querySelectorAll('.sub-star');
             stars.forEach((star, idx) => {
                 if (idx < currentSubQuestionIdx) {
-                    star.className = 'sub-star text-amber-400 text-lg scale-110';
+                    star.className = 'sub-star text-amber-400 text-base scale-110';
                 } else if (idx === currentSubQuestionIdx) {
-                    star.className = 'sub-star text-purple-600 text-lg animate-pulse';
+                    star.className = 'sub-star text-purple-600 text-base animate-pulse';
                 } else {
-                    star.className = 'sub-star text-slate-300 text-lg';
+                    star.className = 'sub-star text-slate-300 text-base';
                 }
             });
             subQuestionText.textContent = `第 ${currentSubQuestionIdx + 1}/3 題`;
@@ -1974,7 +2408,6 @@
                         </div>
                     `;
 
-                    // Drag & Drop 事件
                     dropZone.addEventListener('dragover', (e) => {
                         e.preventDefault();
                         dropZone.classList.add('drag-over');
@@ -1991,9 +2424,9 @@
                         }
                     });
 
-                    // 點擊已填入卡片可退回卡片池
                     dropZone.addEventListener('click', () => {
                         if (selectedSlots[item.index]) {
+                            playSound('select');
                             delete selectedSlots[item.index];
                             updateDropZoneDisplay(item.index, item.placeholder);
                             updateCardPoolVisual();
@@ -2021,7 +2454,7 @@
                 const card = document.createElement('div');
                 card.draggable = true;
                 card.dataset.text = c.text;
-                card.className = `draggable-card px-5 py-2.5 rounded-2xl border-2 font-black text-lg shadow-sm ${pastelBgClasses[idx % pastelBgClasses.length]}`;
+                card.className = `draggable-card px-4 py-2 md:px-5 md:py-2.5 rounded-2xl border-2 font-black text-base md:text-lg shadow-sm ${pastelBgClasses[idx % pastelBgClasses.length]}`;
                 card.textContent = c.text;
 
                 card.addEventListener('dragstart', (e) => {
@@ -2032,8 +2465,8 @@
                     card.classList.remove('dragging');
                 });
 
-                // 點擊自動填入第一個空白格子
                 card.addEventListener('click', () => {
+                    playSound('select');
                     const lvl = phraseLevels[currentLevelIdx];
                     const q = lvl.questions[currentSubQuestionIdx];
                     const emptySlot = q.slots.find(s => s.role === 'slot' && !selectedSlots[s.index]);
@@ -2047,7 +2480,6 @@
         }
 
         function placeCardInSlot(slotIdx, text) {
-            // 如果該卡片已經在其他格子，先移除
             Object.keys(selectedSlots).forEach(k => {
                 if (selectedSlots[k] === text) delete selectedSlots[k];
             });
@@ -2089,21 +2521,19 @@
             });
         }
 
-        // 驗證短語組合
         checkBtn.addEventListener('click', () => {
             const lvl = phraseLevels[currentLevelIdx];
             const q = lvl.questions[currentSubQuestionIdx];
             const slotConfigs = q.slots.filter(s => s.role === 'slot');
 
-            // 檢查是否所有格子都已填滿
             for (let s of slotConfigs) {
                 if (!selectedSlots[s.index]) {
+                    playSound('error');
                     showPhraseMessage(`⚠️ 還有空格尚未填入卡片喔！請將所有格子填滿再驗證。`, "error");
                     return;
                 }
             }
 
-            // 逐格比對
             let isAllCorrect = true;
             let errorFeedback = [];
 
@@ -2121,6 +2551,7 @@
             });
 
             if (isAllCorrect) {
+                playSound('match-success');
                 phraseScore += 10;
                 scoreText.textContent = phraseScore;
 
@@ -2138,6 +2569,8 @@
                     nextBtn.classList.remove('hidden');
                 } else {
                     setTimeout(() => {
+                        modalIconBox.className = "w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-4xl mb-4 shadow-inner";
+                        modalIconBox.innerHTML = '<i class="fa-solid fa-crown"></i>';
                         modalTitle.textContent = `🎉 恭喜完成【${lvl.name}】3 道題目！`;
                         modalMsg.textContent = `太強了！你已經完全掌握此單元短語結構的詞性搭配與句型規則！`;
                         modalNextLevelBtn.textContent = "解鎖並進入下一關 🚀";
@@ -2156,6 +2589,7 @@
                     }, 650);
                 }
             } else {
+                playSound('error');
                 showPhraseMessage(errorFeedback[0] || "⚠️ 詞性搭配有誤，請再仔細看一下結構公式喔！", "error");
                 dropZoneContainer.classList.add('shake-animation');
                 setTimeout(() => dropZoneContainer.classList.remove('shake-animation'), 450);
@@ -2191,9 +2625,9 @@
             }
         }
 
-        /* 啟動網頁初始化 */
+        /* 網頁初次載入啟動 */
+        loadMatchLesson();
         initPhraseNav();
-        loadPhraseLevel();
         initIdiomNav();
     </script>
 </body>
